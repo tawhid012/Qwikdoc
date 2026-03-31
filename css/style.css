@@ -387,3 +387,43 @@ html {
 .auth-btn-primary:hover {
   filter: brightness(1.03);
 }
+
+/* Support and policy pages */
+.support-page-bg {
+  background:
+    radial-gradient(circle at 10% 0%, rgba(14, 165, 233, 0.18) 0, transparent 35%),
+    radial-gradient(circle at 90% 10%, rgba(34, 197, 94, 0.12) 0, transparent 35%),
+    linear-gradient(180deg, #f8fbff 0%, #f8fafc 100%);
+}
+
+.support-topbar {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(226, 232, 240, 0.9);
+}
+
+.support-hero {
+  background:
+    radial-gradient(circle at 10% 10%, rgba(56, 189, 248, 0.28) 0, transparent 40%),
+    radial-gradient(circle at 90% 0%, rgba(14, 116, 144, 0.2) 0, transparent 45%),
+    linear-gradient(130deg, #eff6ff 0%, #ecfeff 45%, #f0fdf4 100%);
+  border: 1px solid rgba(186, 230, 253, 0.8);
+  box-shadow: 0 20px 45px rgba(15, 23, 42, 0.08);
+}
+
+.support-card {
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  box-shadow:
+    0 16px 35px rgba(15, 23, 42, 0.08),
+    0 0 0 1px rgba(255, 255, 255, 0.5) inset;
+}
+
+.support-chip {
+  background: rgba(14, 165, 233, 0.1);
+  color: #0369a1;
+  border: 1px solid rgba(14, 165, 233, 0.2);
+}
