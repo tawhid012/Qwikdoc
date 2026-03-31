@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Doctor Dashboard - QuickDoc</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: { colors: { primary: { 50: '#f0f9ff', 100: '#e0f2fe', 500: '#0ea5e9', 600: '#0284c7', 700: '#0369a1' }, secondary: '#22c55e', accent: '#f8fafc', dark: '#0f172a' }, fontFamily: { sans: ['Inter', 'sans-serif'] } } } }
+  </script>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" type="image/png" href="logo/icon.png">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="bg-slate-50 text-dark flex flex-col min-h-screen">
+
+  <header id="main-header" class="fixed w-full top-0 z-50 bg-white border-b border-slate-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-20">
+        <div class="flex-shrink-0 flex items-center">
+          <a href="index.html" class="flex items-center group">
+            <img src="logo/primary.png" alt="QuickDoc Logo" class="h-14 w-auto hidden md:block object-contain">
+            <img src="logo/icon.png" alt="QuickDoc Icon" class="h-12 w-auto md:hidden object-contain">
+            <span class="ml-4 px-2 py-0.5 bg-primary-100 text-primary-700 text-xs font-bold rounded">Provider</span>
+          </a>
+        </div>
+        <div class="hidden md:flex items-center space-x-4" id="auth-menu-container"></div>
+        <div class="md:hidden flex items-center"><button id="mobile-menu-btn"><svg class="h-6 w-6 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg></button></div>
+      </div>
+    </div>
+    <div id="mobile-menu" class="hidden bg-white border-t border-slate-100 absolute w-full shadow-md"><div id="mobile-auth-container" class="pb-4"></div></div>
+  </header>
+
+  <main class="flex-grow pt-28 pb-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="flex flex-col lg:flex-row gap-8">
+        
+        <!-- Sidebar -->
+        <div class="w-full lg:w-1/4 mb-8 lg:mb-0">
+          <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 sticky top-28 fade-in">
+            <div class="flex items-center gap-4 mb-6">
+              <div class="w-16 h-16 rounded-full bg-primary-100 text-primary-600 flex items-center justify-center text-2xl font-bold" id="doc-avatar">D</div>
+              <div>
+                <h2 class="font-bold text-dark text-lg" id="doc-name">Loading...</h2>
+                <p class="text-sm text-slate-500">Provider Account</p>
+              </div>
+            </div>
+            
+            <nav class="space-y-2 mb-8">
+              <button onclick="switchTab('appointments')" id="tab-appointments" class="w-full flex items-center gap-3 px-4 py-3 bg-primary-50 text-primary-700 rounded-xl font-medium transition text-left">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                Appointments
+              </button>
+              <button onclick="switchTab('profile')" id="tab-profile" class="w-full flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-50 rounded-xl font-medium transition text-left">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                My Profile
+              </button>
+              <button onclick="switchTab('venues')" id="tab-venues" class="w-full flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-50 rounded-xl font-medium transition text-left">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                Manage Venues
+              </button>
+            </nav>
+
+            <button onclick="AuthService.logout()" class="w-full flex items-center gap-3 px-4 py-3 text-red-600 hover:bg-red-50 rounded-xl font-medium transition text-left">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+              Logout
+            </button>
+          </div>
+        </div>
+
+        <!-- Main Workspace -->
+        <div class="w-full lg:w-3/4 fade-in" style="animation-delay: 0.1s;">
+          
+          <!-- Appointments Tab -->
+          <div id="view-appointments" class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 sm:p-8 min-h-[500px]">
+            <div class="flex justify-between items-center mb-6">
+              <h2 class="text-2xl font-bold text-dark">Patient Appointments</h2>
+              <span class="bg-primary-50 text-primary-700 font-medium px-3 py-1 rounded-lg text-sm" id="appt-count">Loading</span>
+            </div>
+            
+            <div id="doctor-appointments-list" class="space-y-4">
+              <div class="spinner mx-auto my-10"></div>
+            </div>
+          </div>
+
+          <!-- Profile / Availability Tab -->
+          <div id="view-profile" class="hidden bg-white rounded-2xl shadow-sm border border-slate-100 p-6 sm:p-8 min-h-[500px]">
+            <h2 class="text-2xl font-bold text-dark mb-6">Manage Profile & Availability</h2>
+            
+            <form id="doc-profile-form" class="space-y-6 max-w-2xl">
+              <div>
+                <label class="block text-sm font-medium text-slate-700 mb-2">Availability Schedule</label>
+                <p class="text-xs text-slate-500 mb-3">Add your available time slots. Separate multiple slots with commas.</p>
+                <textarea id="p-availability" rows="3" class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none transition resize-none"></textarea>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-slate-700 mb-2">Consultation Fee (₹)</label>
+                <input type="number" id="p-fee" class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none transition" placeholder="e.g. 500">
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-slate-700 mb-2">Profile Image URL</label>
+                <input type="url" id="p-image" class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none transition" placeholder="Paste image link here (e.g. https://.../photo.jpg)">
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label class="block text-sm font-medium text-slate-700 mb-2">Office Phone / Contact</label>
+                  <input type="tel" id="p-phone" class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none transition" placeholder="e.g. +91 98765 43210">
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-slate-700 mb-2">Office Pincode</label>
+                  <input type="text" id="p-pin" class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none transition" placeholder="e.g. 560001">
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-slate-700 mb-2">Detailed Office Location</label>
+                <input type="text" id="p-location" class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none transition" placeholder="e.g. Suite 402, Medical Center">
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-slate-700 mb-2">About / Bio</label>
+                <textarea id="p-about" rows="4" class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none transition resize-none" placeholder="Brief description of your expertise and care..."></textarea>
+              </div>
+              
+              <button type="submit" id="profile-save-btn" class="bg-primary-600 text-white font-medium py-3 px-8 rounded-xl shadow-md hover:bg-primary-700 transition">Save Changes</button>
+            </form>
+          </div>
+
+          <!-- Venues Tab -->
+          <div id="view-venues" class="hidden bg-white rounded-2xl shadow-sm border border-slate-100 p-6 sm:p-8 min-h-[500px]">
+            <div class="flex justify-between items-center mb-8">
+              <h2 class="text-2xl font-bold text-dark">Practice Locations (Venues)</h2>
+              <button onclick="showAddVenueModal()" class="bg-primary-600 text-white text-sm font-bold px-4 py-2 rounded-xl shadow-md hover:bg-primary-700 transition">+ Add Venue</button>
+            </div>
+            
+            <div id="venues-list" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <!-- Venues injected here -->
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Venue Modal -->
+  <div id="venue-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden animate-pop-in">
+      <div class="bg-primary-600 p-6 text-white">
+        <h3 class="text-xl font-bold" id="modal-title">Add New Practice Venue</h3>
+        <p class="text-primary-100 text-sm">Fill in the clinic or hospital details.</p>
+      </div>
+      <form id="venue-form" class="p-6 space-y-4">
+        <input type="hidden" id="v-id">
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Select Clinic</label>
+          <select id="v-clinic-id" required class="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none transition">
+            <option value="">Loading clinics...</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Schedule (Days & Times)</label>
+          <input type="text" id="v-schedule" required class="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none transition" placeholder="e.g. Mon-Wed: 10AM-2PM">
+        </div>
+        <div class="flex gap-3 pt-4">
+          <button type="button" onclick="closeVenueModal()" class="flex-1 px-4 py-2.5 border border-slate-200 rounded-xl font-bold text-slate-600 hover:bg-slate-50 transition">Cancel</button>
+          <button type="submit" class="flex-1 px-4 py-2.5 bg-primary-600 text-white rounded-xl font-bold hover:bg-primary-700 transition shadow-md shadow-primary-500/20">Save Venue</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="js/supabase.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      // Wait for auth to fully resolve before checking state
+      await AuthService.ready;
+
+      if (!AuthService.isAuthenticated() || AuthService.getCurrentUser().role !== 'doctor') {
+        window.location.href = 'index.html';
+        return;
+      }
+
+      const user = AuthService.getCurrentUser();
+      document.getElementById('doc-name').textContent = user.name;
+      document.getElementById('doc-avatar').textContent = user.name.charAt(4) || 'D';
+
+      // Load Doctor Data
+      const doctorId = user.id;
+      try {
+        const docData = await DataService.getDoctorById(doctorId);
+        if(docData) {
+          document.getElementById('p-availability').value = (docData.availability || []).join(', ');
+          document.getElementById('p-fee').value = docData.consultation_fee || '';
+          document.getElementById('p-about').value = docData.about || '';
+          document.getElementById('p-phone').value = docData.phone || '';
+          document.getElementById('p-pin').value = docData.pin || '';
+          document.getElementById('p-location').value = docData.location || '';
+          document.getElementById('p-image').value = docData.image || '';
+        }
+      } catch(e) { console.error("Could not load doctor data"); }
+
+      // Load Appointments
+      async function loadAppointments() {
+        const user = AuthService.getCurrentUser();
+        if(!user) return;
+
+        const bookings = await DataService.getDoctorBookings(user.id);
+        const listContainer = document.getElementById('doctor-appointments-list');
+        
+        // sort upcoming first, then recent
+        bookings.sort((a,b) => {
+          if (a.status === 'upcoming' && b.status !== 'upcoming') return -1;
+          if (a.status !== 'upcoming' && b.status === 'upcoming') return 1;
+          return new Date(b.date) - new Date(a.date);
+        });
+
+        const upcomingCount = bookings.filter(b => b.status === 'upcoming').length;
+        document.getElementById('appt-count').textContent = `${upcomingCount} Upcoming`;
+
+        if (bookings.length === 0) {
+          listContainer.innerHTML = `<p class="text-center text-slate-500 py-10">No appointments found.</p>`;
+          return;
+        }
+
+        let html = '';
+        bookings.forEach(b => {
+          let statusBadge = '';
+          let actions = '';
+
+          if (b.status === 'upcoming') {
+            statusBadge = '<span class="bg-blue-100 text-blue-700 text-xs px-2.5 py-0.5 rounded-full font-medium">Upcoming</span>';
+            actions = `
+              <button onclick="updateAppt('${b.id}', 'completed')" class="bg-green-100 hover:bg-green-200 text-green-700 text-sm font-medium px-4 py-2 rounded-lg transition">Mark Done</button>
+              <button onclick="updateAppt('${b.id}', 'cancelled')" class="bg-red-100 hover:bg-red-200 text-red-700 text-sm font-medium px-4 py-2 rounded-lg transition flex-shrink-0">Cancel</button>
+            `;
+          } else if (b.status === 'completed') {
+            statusBadge = '<span class="bg-green-100 text-green-700 text-xs px-2.5 py-0.5 rounded-full font-medium">Completed</span>';
+          } else {
+            statusBadge = '<span class="bg-red-100 text-red-700 text-xs px-2.5 py-0.5 rounded-full font-medium">Cancelled</span>';
+          }
+
+          html += `
+            <div class="bg-slate-50 border border-slate-100 rounded-xl p-5 flex flex-col sm:flex-row gap-6 hover:shadow-sm transition">
+              <div class="flex-grow">
+                <div class="flex items-center gap-3 mb-2">
+                  <h3 class="font-bold text-dark text-lg">${b.patientName}</h3>
+                  ${statusBadge}
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-slate-600 mb-4">
+                  <div class="flex items-center gap-2">✉ ${b.patientEmail}</div>
+                  <div class="flex items-center gap-2">📞 ${b.patientPhone}</div>
+                  <div class="flex items-center gap-2">📅 <strong>${b.date} &nbsp; ${b.time}</strong></div>
+                </div>
+
+                <div class="bg-white p-3 rounded-lg text-sm border border-slate-200">
+                  <strong class="text-slate-700 block mb-1">Reason:</strong>
+                  <span class="text-slate-600">${b.reason}</span>
+                </div>
+              </div>
+              
+              <div class="flex flex-row sm:flex-col gap-2 min-w-[120px] justify-start sm:justify-start pt-2 sm:pt-0">
+                ${actions}
+              </div>
+            </div>
+          `;
+        });
+        
+        listContainer.innerHTML = html;
+      }
+
+      // Profile Save Handler
+      document.getElementById('doc-profile-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const user = AuthService.getCurrentUser();
+        const btn = document.getElementById('profile-save-btn');
+        btn.textContent = "Saving...";
+
+        const updates = {
+          availability: document.getElementById('p-availability').value.split(',').map(s=>s.trim()).filter(s=>s),
+          consultation_fee: parseInt(document.getElementById('p-fee').value) || 0,
+          about: document.getElementById('p-about').value,
+          phone: document.getElementById('p-phone').value,
+          pin: document.getElementById('p-pin').value,
+          location: document.getElementById('p-location').value,
+          image: document.getElementById('p-image').value
+        };
+
+        try {
+          await DataService.updateDoctorProfile(user.id, updates);
+          showToast('Profile updated successfully');
+        } catch(err) {
+          console.error(err);
+          showToast('Failed to update profile. Ensure SQL columns exist.', 'error');
+        } finally {
+          btn.textContent = "Save Changes";
+          btn.disabled = false;
+        }
+      });
+
+      // Global window helpers
+      window.switchTab = function(tab) {
+        document.getElementById('view-appointments').classList.add('hidden');
+        document.getElementById('view-profile').classList.add('hidden');
+        document.getElementById('view-venues').classList.add('hidden');
+        
+        document.getElementById('tab-appointments').className = 'w-full flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-50 rounded-xl font-medium transition text-left';
+        document.getElementById('tab-profile').className = 'w-full flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-50 rounded-xl font-medium transition text-left';
+        document.getElementById('tab-venues').className = 'w-full flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-50 rounded-xl font-medium transition text-left';
+        
+        document.getElementById('view-' + tab).classList.remove('hidden');
+        document.getElementById('tab-' + tab).className = 'w-full flex items-center gap-3 px-4 py-3 bg-primary-50 text-primary-700 rounded-xl font-medium transition text-left';
+      };
+
+      // Venue Handlers
+      window.loadVenues = async () => {
+        const user = AuthService.getCurrentUser();
+        const venues = await DataService.getDoctorClinics(user.id);
+        const container = document.getElementById('venues-list');
+        
+        if (venues.length === 0) {
+          container.innerHTML = `<div class="col-span-1 md:col-span-2 text-center py-10 text-slate-500 bg-slate-50 rounded-2xl border border-dashed border-slate-300">No venues linked yet. Click "+ Add Venue" to select from registered clinics.</div>`;
+          return;
+        }
+
+        container.innerHTML = venues.map(v => `
+          <div class="bg-slate-50 border border-slate-100 rounded-2xl p-6 hover-float transition-all group">
+            <div class="flex justify-between items-start mb-4">
+              <div class="w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center text-xl">🏥</div>
+              <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                <button onclick="editVenue('${v.id}')" class="p-2 text-primary-600 hover:bg-primary-50 rounded-lg transition">✏️</button>
+                <button onclick="deleteVenue('${v.id}')" class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition">🗑️</button>
+              </div>
+            </div>
+            <h4 class="font-bold text-dark text-lg mb-1">${v.clinic?.name || 'Unknown Clinic'}</h4>
+            <p class="text-sm text-slate-600 mb-4">${v.clinic?.address || ''} (PIN: ${v.clinic?.pin || ''})</p>
+            <div class="bg-white px-4 py-2 rounded-xl text-xs font-bold text-primary-600 inline-block border border-primary-100">
+              🕒 ${v.schedule}
+            </div>
+          </div>
+        `).join('');
+      };
+
+      window.showAddVenueModal = async () => {
+        document.getElementById('modal-title').textContent = "Link Practice Venue";
+        document.getElementById('v-id').value = "";
+        document.getElementById('venue-form').reset();
+        
+        // Populate clinics dropdown
+        const clinicsSelect = document.getElementById('v-clinic-id');
+        clinicsSelect.innerHTML = '<option value="">Loading...</option>';
+        try {
+          const clinicsList = await DataService.getClinics();
+          clinicsSelect.innerHTML = '<option value="">Select a Registered Clinic</option>' + 
+            clinicsList.map(c => `<option value="${c.id}">${c.name} - ${c.city || c.pin || ''}</option>`).join('');
+        } catch(e) {
+          clinicsSelect.innerHTML = '<option value="">Failed to load clinics</option>';
+        }
+        
+        document.getElementById('venue-modal').classList.remove('hidden');
+      };
+
+      window.closeVenueModal = () => {
+        document.getElementById('venue-modal').classList.add('hidden');
+      };
+
+      window.editVenue = async (id) => {
+        const user = AuthService.getCurrentUser();
+        const venues = await DataService.getDoctorClinics(user.id);
+        const venue = venues.find(v => v.id === id);
+        if (venue) {
+          document.getElementById('modal-title').textContent = "Edit Clinic Schedule";
+          document.getElementById('v-id').value = venue.id;
+          
+          const clinicsSelect = document.getElementById('v-clinic-id');
+          clinicsSelect.innerHTML = `<option value="${venue.clinic_id}">${venue.clinic?.name || 'Clinic'}</option>`;
+          clinicsSelect.value = venue.clinic_id;
+          
+          document.getElementById('v-schedule').value = venue.schedule;
+          document.getElementById('venue-modal').classList.remove('hidden');
+        }
+      };
+
+      document.getElementById('venue-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const user = AuthService.getCurrentUser();
+        
+        const linkData = {
+          doctor_id: user.id,
+          clinic_id: document.getElementById('v-clinic-id').value,
+          schedule: document.getElementById('v-schedule').value
+        };
+        
+        const linkId = document.getElementById('v-id').value;
+        if (linkId) linkData.id = linkId;
+
+        try {
+          await DataService.linkDoctorToClinic(linkData);
+          showToast('Venue linked successfully');
+          closeVenueModal();
+          await loadVenues();
+        } catch(err) {
+          showToast('Failed to link venue', 'error');
+        }
+      });
+
+      window.deleteVenue = async (id) => {
+        if (confirm('Are you sure you want to remove this practice location?')) {
+          try {
+            await DataService.removeDoctorFromClinic(id);
+            showToast('Venue removed');
+            await loadVenues();
+          } catch(e) {
+            showToast('Failed to remove venue', 'error');
+          }
+        }
+      };
+
+      window.updateAppt = async function(id, status) {
+        if(confirm(`Mark this appointment as ${status}?`)) {
+          try {
+            await DataService.updateAppointmentStatus(id, status);
+            showToast(`Appointment ${status}`);
+            await loadAppointments();
+          } catch(e) {
+            showToast(`Failed to update to ${status}`, 'error');
+          }
+        }
+      };
+
+      try {
+        await loadAppointments();
+        await loadVenues();
+      } catch(e) {
+        console.error("Could not load appointments or venues", e);
+      }
+    });
+  </script>
+</body>
+</html>

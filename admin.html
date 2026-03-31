@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - QuickDoc</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: { colors: { primary: { 50: '#f0f9ff', 100: '#e0f2fe', 500: '#0ea5e9', 600: '#0284c7', 700: '#0369a1' }, dark: '#0f172a' }, fontFamily: { sans: ['Inter', 'sans-serif'] } } } }
+  </script>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" type="image/png" href="logo/icon.png">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="bg-slate-50 text-dark font-sans antialiased">
+  
+  <!-- Login Gate -->
+  <div id="admin-login-view" class="min-h-screen flex items-center justify-center p-4 bg-slate-900 absolute inset-0 z-50 transition-opacity duration-300">
+    <div class="bg-white rounded-2xl shadow-2xl overflow-hidden w-full max-w-md">
+      <div class="bg-primary-600 p-6 text-center">
+        <h2 class="text-2xl font-bold text-white">QuickDoc Admin</h2>
+        <p class="text-primary-100 text-sm opacity-80 mt-1">Restricted Access</p>
+      </div>
+      <div class="p-8">
+        <div id="login-error" class="hidden text-red-600 bg-red-50 p-3 rounded-lg text-sm mb-4 border border-red-200">
+          Invalid credentials.
+        </div>
+        <form id="admin-login-form" class="space-y-5">
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1">Username</label>
+            <input type="text" id="admin-user" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500" required>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1">Password</label>
+            <input type="password" id="admin-pass" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500" required>
+          </div>
+          <button type="submit" class="w-full bg-primary-600 text-white font-bold py-3 rounded-xl hover:bg-primary-700 transition">
+            Login to Portal
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin Dashboard -->
+  <div id="admin-dashboard-view" class="hidden flex h-screen overflow-hidden bg-slate-50">
+    
+    <!-- Sidebar -->
+    <aside class="w-64 bg-dark text-slate-300 flex flex-col hidden md:flex">
+      <div class="p-6 border-b border-slate-800">
+        <img src="logo/knockout-logo.png" alt="QuickDoc HQ" class="h-10 w-auto">
+      </div>
+      <nav class="flex-1 p-4 space-y-2">
+        <a href="#" class="block px-4 py-3 bg-primary-600/10 text-primary-400 rounded-xl font-medium">Dashboard</a>
+        <a href="index.html" class="block px-4 py-3 hover:bg-slate-800 hover:text-white rounded-xl transition">Back to Site</a>
+      </nav>
+      <div class="p-4 border-t border-slate-800">
+        <button id="admin-logout-btn" class="w-full text-left px-4 py-2 text-slate-400 hover:text-white transition flex items-center gap-2">
+          ⏏ Logout
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col h-screen overflow-hidden relative">
+      <header class="bg-white border-b border-slate-100 h-20 flex items-center px-8 justify-between shrink-0">
+        <h1 class="text-2xl font-bold text-dark">System Overview</h1>
+        <div class="flex items-center gap-3">
+          <span class="bg-slate-100 px-3 py-1 rounded-full text-sm font-bold text-slate-600">Super Admin</span>
+        </div>
+      </header>
+      
+      <div class="flex-1 overflow-y-auto p-8 relative">
+        <div id="admin-loading" class="absolute inset-0 bg-white/50 backdrop-blur-sm z-10 flex items-center justify-center">
+          <div class="spinner w-10 h-10 border-4 border-primary-600 border-t-transparent"></div>
+        </div>
+
+        <!-- Dashboard Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+            <h3 class="text-slate-500 text-sm font-medium mb-1">Total Users (Patients)</h3>
+            <p id="stat-patients" class="text-4xl font-extrabold text-dark">0</p>
+          </div>
+          <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+            <h3 class="text-slate-500 text-sm font-medium mb-1">Total Providers</h3>
+            <p id="stat-doctors" class="text-4xl font-extrabold text-dark">0</p>
+          </div>
+          <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+            <h3 class="text-slate-500 text-sm font-medium mb-1">Total Appointments</h3>
+            <p id="stat-appointments" class="text-4xl font-extrabold text-dark">0</p>
+          </div>
+        </div>
+
+        <!-- System Logs / Data Tables -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <!-- Recent Doctors -->
+          <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+            <div class="p-6 border-b border-slate-50">
+              <h3 class="text-lg font-bold text-dark">Approved Providers Directory</h3>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-sm">
+                <thead class="bg-slate-50 text-slate-500 font-medium">
+                  <tr>
+                    <th class="px-6 py-3">Name</th>
+                    <th class="px-6 py-3">Specialty</th>
+                  </tr>
+                </thead>
+                <tbody id="admin-doctors-list" class="divide-y divide-slate-50">
+                  <!-- Dynamically populated -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Appointments -->
+          <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+            <div class="p-6 border-b border-slate-50">
+              <h3 class="text-lg font-bold text-dark">System Appointments</h3>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-sm">
+                <thead class="bg-slate-50 text-slate-500 font-medium">
+                  <tr>
+                    <th class="px-6 py-3">Patient</th>
+                    <th class="px-6 py-3">Date/Status</th>
+                  </tr>
+                </thead>
+                <tbody id="admin-appointments-list" class="divide-y divide-slate-50">
+                  <!-- Dynamically populated -->
+                </tbody>
+              </table>
+              <div id="rls-warning" class="hidden p-4 text-xs text-amber-600 bg-amber-50">
+                Note: Appointments/Users may show 0 if Row Level Security (RLS) is strictly enforced on the anon key.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="js/supabase.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const loginView = document.getElementById('admin-login-view');
+      const dashboardView = document.getElementById('admin-dashboard-view');
+      const loginForm = document.getElementById('admin-login-form');
+      const errBox = document.getElementById('login-error');
+      const logoutBtn = document.getElementById('admin-logout-btn');
+
+      // Check Session Storage
+      if (sessionStorage.getItem('quickdoc_admin_auth') === 'true') {
+        showDashboard();
+      }
+
+      loginForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const user = document.getElementById('admin-user').value.trim();
+        const pass = document.getElementById('admin-pass').value;
+
+        // Hardcoded secure check as requested
+        if (user === 'Admin@quickdoc' && pass === 'Quickdoc@2026') {
+          sessionStorage.setItem('quickdoc_admin_auth', 'true');
+          showDashboard();
+        } else {
+          errBox.classList.remove('hidden');
+        }
+      });
+
+      logoutBtn.addEventListener('click', () => {
+        sessionStorage.removeItem('quickdoc_admin_auth');
+        window.location.reload();
+      });
+
+      function showDashboard() {
+        loginView.classList.add('hidden');
+        dashboardView.classList.remove('hidden');
+        loadData();
+      }
+
+      async function loadData() {
+        try {
+          const loadingIndicator = document.getElementById('admin-loading');
+          
+          // 1. Fetch Doctors (Public API)
+          const { data: docs, error: docErr } = await supabase.from('doctors').select('*');
+          
+          // 2. Fetch Users (Might return [] if RLS blocks read-all)
+          const { data: users, error: userErr } = await supabase.from('users').select('*').eq('role', 'patient');
+          
+          // 3. Fetch Appointments (Might return [] if RLS blocks read-all)
+          const { data: appts, error: apptErr } = await supabase.from('appointments').select('*');
+
+          // Update summary counts
+          if(docs) document.getElementById('stat-doctors').textContent = docs.length;
+          if(users) document.getElementById('stat-patients').textContent = users.length;
+          if(appts) document.getElementById('stat-appointments').textContent = appts.length;
+
+          // If RLS blocked appts/users (empty array but no error thrown usually, or throws an error)
+          if ((!users || users.length === 0) && (!appts || appts.length === 0)) {
+            document.getElementById('rls-warning').classList.remove('hidden');
+          }
+
+          // Render Doctors Table
+          const docList = document.getElementById('admin-doctors-list');
+          if (docs && docs.length > 0) {
+            docList.innerHTML = docs.slice(0, 10).map(d => `
+              <tr class="hover:bg-slate-50/50">
+                <td class="px-6 py-4 font-bold text-dark">${d.name}</td>
+                <td class="px-6 py-4 text-slate-500">${d.specialization}</td>
+              </tr>
+            `).join('');
+          } else {
+            docList.innerHTML = `<tr><td colspan="2" class="px-6 py-4 text-center text-slate-400">No doctors found</td></tr>`;
+          }
+
+          // Render Appointments Table
+          const apptList = document.getElementById('admin-appointments-list');
+          if (appts && appts.length > 0) {
+            apptList.innerHTML = appts.slice(0, 10).map(a => `
+              <tr class="hover:bg-slate-50/50">
+                <td class="px-6 py-4 font-bold text-dark">${a.patient_name || 'Anonymous'}</td>
+                <td class="px-6 py-4">
+                  <div class="text-slate-800 font-medium">${a.date}</div>
+                  <div class="text-xs uppercase font-bold ${a.status === 'completed' ? 'text-green-500' : (a.status === 'cancelled' ? 'text-red-500' : 'text-blue-500')}">${a.status}</div>
+                </td>
+              </tr>
+            `).join('');
+          } else {
+            apptList.innerHTML = `<tr><td colspan="2" class="px-6 py-4 text-center text-slate-400">No appointments tracking (or RLS restricted)</td></tr>`;
+          }
+
+          loadingIndicator.classList.add('hidden');
+          
+        } catch (e) {
+          console.error("Failed to load admin dashboard data", e);
+        }
+      }
+    });
+  </script>
+</body>
+</html>

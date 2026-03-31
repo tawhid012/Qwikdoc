@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- SEO & Open Graph -->
+  <title>QuickDoc - Find the Right Doctor Near You Instantly</title>
+  <meta name="description"
+    content="Book doctor appointments online. Find top-rated dentists, dermatologists, and general physicians near you quickly and securely.">
+  <meta name="keywords" content="doctor booking near me, book appointment online, find doctors, healthcare platform">
+
+  <!-- Supabase & Styling -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: { colors: { primary: { 50: '#f0f9ff', 100: '#e0f2fe', 500: '#0ea5e9', 600: '#0284c7', 700: '#0369a1' }, secondary: '#22c55e', accent: '#f8fafc', dark: '#0f172a' }, fontFamily: { sans: ['Inter', 'sans-serif'] } } } }
+  </script>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" type="image/png" href="logo/icon.png">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- AI SEO Schemas -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "MedicalBusiness",
+    "name": "QuickDoc",
+    "description": "Healthcare appointment platform to find the best doctors near you and book appointments online.",
+    "url": "https://quickdoc.example.com",
+    "logo": "https://quickdoc.example.com/logo.png"
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [{
+      "@type": "Question",
+      "name": "How do I book a doctor appointment online?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Simply search for a doctor by specialty or location, select a time slot from their profile, and confirm your booking instantly through QuickDoc."
+      }
+    }, {
+      "@type": "Question",
+      "name": "Are the doctors on QuickDoc verified?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes, all medical professionals on QuickDoc undergo a strict verification process to ensure they are licensed and qualified to provide care."
+      }
+    }, {
+      "@type": "Question",
+      "name": "Is it free to use QuickDoc?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Using QuickDoc to search and book appointments is completely free. You only pay the consultation fee directly to the doctor or clinic."
+      }
+    }]
+  }
+  </script>
+
+</head>
+
+<body class="bg-slate-50 text-dark flex flex-col min-h-screen overflow-x-hidden">
+
+  <!-- Header -->
+  <header id="main-header"
+    class="fixed w-full top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-100 transition-all duration-300">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-20">
+        <div class="flex-shrink-0 flex items-center">
+          <a href="index.html" class="flex items-center group">
+            <img src="logo/primary.png" alt="QuickDoc Logo" class="h-14 w-auto hidden md:block object-contain">
+            <img src="logo/icon.png" alt="QuickDoc Icon" class="h-12 w-auto md:hidden object-contain">
+          </a>
+        </div>
+        <nav class="hidden md:flex items-center space-x-8">
+          <a href="search.html" class="font-medium hover:text-primary-600 text-slate-700 transition">Find Doctors</a>
+          <a href="#how-it-works" class="font-medium hover:text-primary-600 text-slate-700 transition">How it Works</a>
+          <a href="#faq" class="font-medium hover:text-primary-600 text-slate-700 transition">FAQ</a>
+        </nav>
+        <div class="hidden md:flex items-center space-x-4" id="auth-menu-container"></div>
+        <div class="md:hidden flex items-center"><button id="mobile-menu-btn" class="focus:outline-none"><svg
+              class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg></button></div>
+      </div>
+    </div>
+    <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-slate-100 shadow-xl absolute w-full z-50">
+      <div class="px-4 py-4 space-y-2">
+        <a href="search.html" class="block px-4 py-2 text-lg font-medium hover:bg-slate-50 rounded-lg">Find Doctors</a>
+        <a href="#how-it-works" class="block px-4 py-2 text-lg font-medium hover:bg-slate-50 rounded-lg">How it
+          Works</a>
+        <div id="mobile-auth-container" class="pt-2 border-t mt-2"></div>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-grow pt-20">
+
+    <!-- 1. Hero Section -->
+    <section class="hero-brand-premium relative z-30 pt-20 pb-24">
+      <!-- Decor -->
+      <div
+        class="absolute top-20 right-0 w-96 h-96 bg-sky-300 rounded-full mix-blend-multiply filter blur-3xl opacity-55 animate-blob">
+      </div>
+      <div
+        class="absolute top-40 left-10 w-72 h-72 bg-cyan-300 rounded-full mix-blend-multiply filter blur-3xl opacity-45 animate-blob animation-delay-2000">
+      </div>
+      <div
+        class="absolute bottom-0 left-1/2 -translate-x-1/2 w-[32rem] h-[20rem] bg-emerald-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-4000">
+      </div>
+
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+        <span
+          class="inline-block py-1 px-3 rounded-full bg-white border border-primary-100 text-primary-600 text-sm font-semibold mb-6 shadow-sm fade-in">
+          🚀 The #1 Doctor Booking Platform
+        </span>
+        <h1 class="text-5xl md:text-6xl lg:text-7xl font-extrabold text-dark tracking-tight mb-6 leading-tight fade-in"
+          style="animation-delay: 0.1s;">
+          Find the Right Doctor<br /> Near You <span class="text-primary-500 relative inline-block">Instantly
+            <svg class="absolute w-full h-4 -bottom-1 left-0 text-primary-200 -z-10" viewBox="0 0 100 10"
+              preserveAspectRatio="none">
+              <path d="M0 5 Q 50 10 100 5" stroke="currentColor" stroke-width="8" fill="transparent" />
+            </svg>
+          </span>
+        </h1>
+        <p class="text-xl text-slate-600 mb-10 max-w-2xl mx-auto fade-in" style="animation-delay: 0.2s;">
+          Skip the waiting room. Search verified doctors, read real reviews, and secure your appointment 100% online.
+        </p>
+
+        <!-- Search Widget -->
+        <div
+          class="hero-search-glass p-4 rounded-2xl max-w-4xl mx-auto fade-in hover-float relative z-20"
+          style="animation-delay: 0.3s;">
+          <form action="search.html" method="GET" class="flex flex-col md:flex-row gap-3">
+            <div class="flex-grow relative">
+              <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">🔍</div>
+              <input type="text" id="main-search-input" name="q" autocomplete="off" placeholder="Specialty or doctor name..." class="w-full pl-12 pr-4 py-4 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500 bg-slate-50 focus:bg-white transition-all text-lg font-medium">
+              <!-- Dropdown Menu -->
+              <div id="autocomplete-dropdown" class="absolute z-[120] w-full bg-white mt-1 rounded-xl shadow-xl border border-slate-100 max-h-72 overflow-y-auto hidden text-left flex-col divide-y divide-slate-50"></div>
+            </div>
+            <div class="flex-grow relative">
+              <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">📍</div>
+              <input type="text" name="loc" placeholder="City or zip code"
+                class="w-full pl-12 pr-4 py-4 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500 bg-slate-50 focus:bg-white transition-all text-lg font-medium">
+            </div>
+            <button type="submit"
+              class="bg-primary-600 hover:bg-primary-700 text-white font-bold py-4 px-10 rounded-xl transition-colors shadow-lg shadow-primary-500/30 flex-shrink-0 text-lg">
+              Search
+            </button>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. Trust Section -->
+    <section class="relative z-10 py-10 border-y border-slate-100 bg-white">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-col md:flex-row justify-center items-center gap-12 md:gap-24 text-center">
+          <div>
+            <h3 class="text-4xl font-extrabold text-dark mb-1">50k+</h3>
+            <p class="text-sm font-medium text-slate-500 uppercase tracking-widest">Active Patients</p>
+          </div>
+          <div class="hidden md:block w-px h-12 bg-slate-200"></div>
+          <div>
+            <h3 class="text-4xl font-extrabold text-dark mb-1">2,000+</h3>
+            <p class="text-sm font-medium text-slate-500 uppercase tracking-widest">Verified Doctors</p>
+          </div>
+          <div class="hidden md:block w-px h-12 bg-slate-200"></div>
+          <div>
+            <h3 class="text-4xl font-extrabold text-dark mb-1">99%</h3>
+            <p class="text-sm font-medium text-slate-500 uppercase tracking-widest">Positive Reviews</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. How It Works -->
+    <section id="how-it-works" class="py-24 bg-slate-50">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center max-w-2xl mx-auto mb-16">
+          <h2 class="text-sm font-bold text-primary-600 uppercase tracking-wider mb-2">Process</h2>
+          <h3 class="text-4xl font-bold text-dark">Book in 3 Easy Steps</h3>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 relative z-10">
+          <div
+            class="bg-white p-8 rounded-3xl shadow-sm border border-slate-100 text-center hover-float transition-all relative">
+            <div
+              class="w-16 h-16 mx-auto bg-primary-100 text-primary-600 rounded-2xl flex items-center justify-center text-2xl font-bold mb-6">
+              🔍</div>
+            <h4 class="text-2xl font-bold text-dark mb-3">1. Search</h4>
+            <p class="text-slate-600">Find doctors near you by specialty, symptoms, or name using our smart algorithm.
+            </p>
+          </div>
+          <div
+            class="bg-white p-8 rounded-3xl shadow-sm border border-slate-100 text-center hover-float transition-all relative">
+            <div
+              class="w-16 h-16 mx-auto bg-primary-100 text-primary-600 rounded-2xl flex items-center justify-center text-2xl font-bold mb-6">
+              ⭐</div>
+            <h4 class="text-2xl font-bold text-dark mb-3">2. Choose</h4>
+            <p class="text-slate-600">Compare profiles, read verified patient reviews, and check real-time availability.
+            </p>
+          </div>
+          <div
+            class="bg-white p-8 rounded-3xl shadow-sm border border-slate-100 text-center hover-float transition-all relative">
+            <div
+              class="w-16 h-16 mx-auto bg-primary-100 text-primary-600 rounded-2xl flex items-center justify-center text-2xl font-bold mb-6">
+              📅</div>
+            <h4 class="text-2xl font-bold text-dark mb-3">3. Book</h4>
+            <p class="text-slate-600">Select a time slot and confirm your appointment instantly. No phone calls needed!
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. Categories Section -->
+    <section class="py-24 bg-white">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-end mb-12">
+          <div>
+            <h2 class="text-sm font-bold text-primary-600 uppercase tracking-wider mb-2">Specialties</h2>
+            <h3 class="text-4xl font-bold text-dark">Top Care Types</h3>
+          </div>
+          <a href="search.html" class="hidden md:block text-primary-600 font-semibold hover:text-primary-700">View All
+            →</a>
+        </div>
+
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+          <a href="search.html?q=Dentist"
+            class="bg-slate-50 hover:bg-white p-6 rounded-2xl border border-slate-100 text-center hover-float transition-all group shadow-sm hover:shadow-xl">
+            <div
+              class="w-14 h-14 mx-auto bg-white rounded-xl shadow-sm flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform">
+              🦷</div>
+            <h4 class="font-bold text-dark mb-1">Dentist</h4>
+            <p class="text-xs text-slate-500">Teeth Care</p>
+          </a>
+          <a href="search.html?q=Dermatologist"
+            class="bg-slate-50 hover:bg-white p-6 rounded-2xl border border-slate-100 text-center hover-float transition-all group shadow-sm hover:shadow-xl">
+            <div
+              class="w-14 h-14 mx-auto bg-white rounded-xl shadow-sm flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform">
+              ✨</div>
+            <h4 class="font-bold text-dark mb-1">Skin Care</h4>
+            <p class="text-xs text-slate-500">Dermatologist</p>
+          </a>
+          <a href="search.html?q=Cardiologist"
+            class="bg-slate-50 hover:bg-white p-6 rounded-2xl border border-slate-100 text-center hover-float transition-all group shadow-sm hover:shadow-xl">
+            <div
+              class="w-14 h-14 mx-auto bg-white rounded-xl shadow-sm flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform">
+              🫀</div>
+            <h4 class="font-bold text-dark mb-1">Cardiology</h4>
+            <p class="text-xs text-slate-500">Heart Health</p>
+          </a>
+          <a href="search.html?q=Pediatrician"
+            class="bg-slate-50 hover:bg-white p-6 rounded-2xl border border-slate-100 text-center hover-float transition-all group shadow-sm hover:shadow-xl">
+            <div
+              class="w-14 h-14 mx-auto bg-white rounded-xl shadow-sm flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform">
+              🧸</div>
+            <h4 class="font-bold text-dark mb-1">Pediatric</h4>
+            <p class="text-xs text-slate-500">Child Care</p>
+          </a>
+          <a href="search.html?q=Orthopedic"
+            class="bg-slate-50 hover:bg-white p-6 rounded-2xl border border-slate-100 text-center hover-float transition-all group shadow-sm hover:shadow-xl">
+            <div
+              class="w-14 h-14 mx-auto bg-white rounded-xl shadow-sm flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform">
+              🦴</div>
+            <h4 class="font-bold text-dark mb-1">Orthopedic</h4>
+            <p class="text-xs text-slate-500">Bone & Joint</p>
+          </a>
+          <a href="search.html?q=General"
+            class="bg-slate-50 hover:bg-white p-6 rounded-2xl border border-slate-100 text-center hover-float transition-all group shadow-sm hover:shadow-xl">
+            <div
+              class="w-14 h-14 mx-auto bg-white rounded-xl shadow-sm flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform">
+              🩺</div>
+            <h4 class="font-bold text-dark mb-1">General</h4>
+            <p class="text-xs text-slate-500">Primary Care</p>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. Featured Doctors -->
+    <section class="py-24 bg-slate-50 border-t border-slate-100">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center max-w-2xl mx-auto mb-16">
+          <h2 class="text-sm font-bold text-primary-600 uppercase tracking-wider mb-2">Top Rated</h2>
+          <h3 class="text-4xl font-bold text-dark">Featured Doctors</h3>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="featured-docs-grid">
+          <!-- Dynamic doctors injected via JS -->
+          <div class="col-span-3 text-center py-10">
+            <div class="spinner mx-auto"></div>
+          </div>
+        </div>
+
+        <div class="mt-12 text-center">
+          <a href="search.html"
+            class="inline-flex items-center gap-2 bg-white border-2 border-slate-200 text-dark font-bold py-3 px-8 rounded-xl hover:border-primary-500 hover:text-primary-600 transition-colors">
+            See All Doctors <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+            </svg>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. Why Choose Us -->
+    <section class="py-24 bg-dark text-white relative overflow-hidden">
+      <!-- Decor -->
+      <div
+        class="absolute top-0 right-0 w-full h-full bg-[url('https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&q=80')] bg-cover bg-center opacity-10">
+      </div>
+      <div class="absolute inset-0 bg-gradient-to-r from-dark to-transparent"></div>
+
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+          <div>
+            <h2 class="text-sm font-bold text-primary-400 uppercase tracking-wider mb-2">Why QuickDoc</h2>
+            <h3 class="text-4xl font-bold text-white mb-6 leading-tight">Better Healthcare,<br />Right at Your
+              Fingertips</h3>
+            <p class="text-slate-400 mb-8 max-w-lg text-lg">We've simplified the entire process of finding and visiting
+              a doctor. Experience healthcare designed around you.</p>
+
+            <ul class="space-y-6">
+              <li class="flex items-start gap-4">
+                <div
+                  class="w-12 h-12 bg-primary-500/20 text-primary-400 rounded-xl flex items-center justify-center flex-shrink-0">
+                  ✓</div>
+                <div>
+                  <h4 class="text-xl font-bold mb-1">Instant Booking</h4>
+                  <p class="text-slate-400">Book your appointment in seconds entirely online.</p>
+                </div>
+              </li>
+              <li class="flex items-start gap-4">
+                <div
+                  class="w-12 h-12 bg-primary-500/20 text-primary-400 rounded-xl flex items-center justify-center flex-shrink-0">
+                  ✓</div>
+                <div>
+                  <h4 class="text-xl font-bold mb-1">Verified Professionals</h4>
+                  <p class="text-slate-400">Every doctor on our platform is thoroughly vetted and licensed.</p>
+                </div>
+              </li>
+              <li class="flex items-start gap-4">
+                <div
+                  class="w-12 h-12 bg-primary-500/20 text-primary-400 rounded-xl flex items-center justify-center flex-shrink-0">
+                  ✓</div>
+                <div>
+                  <h4 class="text-xl font-bold mb-1">Read Real Reviews</h4>
+                  <p class="text-slate-400">Make informed decisions based on verified patient feedback.</p>
+                </div>
+              </li>
+            </ul>
+          </div>
+          <div class="hidden lg:block">
+            <img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&q=80&w=800&h=800"
+              class="rounded-3xl shadow-2xl border-4 border-slate-800 lazy-load" alt="Happy Doctor">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7. FAQ Section -->
+    <section id="faq" class="py-24 bg-white">
+      <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+          <h2 class="text-sm font-bold text-primary-600 uppercase tracking-wider mb-2">FAQs</h2>
+          <h3 class="text-4xl font-bold text-dark">Common Questions</h3>
+        </div>
+
+        <div class="space-y-4">
+          <!-- Accordion item -->
+          <div
+            class="border border-slate-200 rounded-2xl p-6 hover:shadow-md transition-shadow cursor-pointer faq-item">
+            <h4 class="text-lg font-bold text-dark flex justify-between items-center">
+              How do I book a doctor appointment online?
+              <span class="text-primary-600">+</span>
+            </h4>
+            <p class="text-slate-600 mt-4 hidden">Simply search for a doctor by specialty or location, select a
+              requested time slot from their profile, and confirm your booking instantly through our platform.</p>
+          </div>
+          <div
+            class="border border-slate-200 rounded-2xl p-6 hover:shadow-md transition-shadow cursor-pointer faq-item">
+            <h4 class="text-lg font-bold text-dark flex justify-between items-center">
+              Are the doctors on QuickDoc verified?
+              <span class="text-primary-600">+</span>
+            </h4>
+            <p class="text-slate-600 mt-4 hidden">Yes, all medical professionals undergo a strict verification process
+              to ensure they hold proper licenses and credentials.</p>
+          </div>
+          <div
+            class="border border-slate-200 rounded-2xl p-6 hover:shadow-md transition-shadow cursor-pointer faq-item">
+            <h4 class="text-lg font-bold text-dark flex justify-between items-center">
+              Is it free to use QuickDoc?
+              <span class="text-primary-600">+</span>
+            </h4>
+            <p class="text-slate-600 mt-4 hidden">Our platform is 100% free for patients to search and book. You only
+              pay the consultation fee directly to your doctor at the time of your visit.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 8. CTA Section -->
+    <section class="py-20 bg-primary-600 relative overflow-hidden">
+      <div
+        class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4xIj48cGF0aCBkPSJNMzYgMzRoLTR2NGg0djRoLTR2NGgtNHYtNGg0djRoLTh2LTRoLTh2LTRoLThWMTZoOHYtNGg4di00aDhWMGg0djRoNHY0aDR2NGg0djRWMHoiLz48L2c+PC9nPjwvc3ZnPg==')] opacity-20">
+      </div>
+
+      <div class="max-w-4xl mx-auto px-4 relative z-10 text-center text-white">
+        <h2 class="text-4xl md:text-5xl font-extrabold mb-6">Ready to prioritize your health?</h2>
+        <p class="text-xl text-primary-100 mb-10 max-w-2xl mx-auto">Join thousands of patients who trust QuickDoc for
+          their healthcare needs. Takes less than a minute to sign up.</p>
+        <div class="flex flex-col sm:flex-row justify-center gap-4">
+          <a href="signup.html"
+            class="bg-white text-primary-700 hover:bg-slate-50 font-bold text-lg py-4 px-10 rounded-xl transition-transform hover:scale-105 shadow-xl">
+            Get Started Free
+          </a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- 9. Footer -->
+  <footer class="bg-dark text-slate-300 pt-20 pb-10 border-t border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
+        <div>
+          <a href="index.html" class="block mb-6">
+            <img src="logo/knockout-logo.png" alt="QuickDoc Logo" class="h-20 w-auto object-contain">
+          </a>
+          <p class="text-slate-400 mb-6 leading-relaxed">Making healthcare accessible, transparent, and hassle-free. The
+            smart way to find a doctor.</p>
+        </div>
+
+        <div>
+          <h4 class="text-white font-bold text-lg mb-6 tracking-wide">Patients</h4>
+          <ul class="space-y-4 font-medium">
+            <li><a href="search.html" class="hover:text-primary-400 transition-colors">Find a Doctor</a></li>
+            <li><a href="login.html" class="hover:text-primary-400 transition-colors">Book an Appointment</a></li>
+            <li><a href="user-dashboard.html" class="hover:text-primary-400 transition-colors">My Appointments</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="font-bold text-white mb-6 text-lg tracking-tight">Support</h4>
+          <ul class="space-y-4 text-slate-400">
+            <li><a href="#" class="hover:text-primary-400 transition-colors">Help Center</a></li>
+            <li><a href="#" class="hover:text-primary-400 transition-colors">Contact Us</a></li>
+            <li><a href="#" class="hover:text-primary-400 transition-colors">Privacy Policy</a></li>
+            <li><a href="#" class="hover:text-primary-400 transition-colors">Terms of Service</a></li>
+            </li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="text-white font-bold text-lg mb-6 tracking-wide">Contact</h4>
+          <ul class="space-y-4 font-medium">
+            <li class="flex items-center gap-3">
+              <span class="text-primary-500">✉</span> hello@quickdoc.in
+            </li>
+            <li class="flex items-center gap-3">
+              <span class="text-primary-500">📞</span> +91 95773 63979
+            </li>
+            <li class="flex items-center gap-3">
+              <span class="text-primary-500">📍</span> Hailakandi , Assam , India
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div
+        class="border-t border-slate-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-sm font-medium">
+        <p class="text-slate-500">&copy; 2026 QuickDoc, Inc. All rights reserved.</p>
+        <div class="flex space-x-6">
+          <a href="#" class="text-slate-500 hover:text-white transition-colors">Privacy Policy</a>
+          <a href="#" class="text-slate-500 hover:text-white transition-colors">Terms of Service</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/supabase.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      // FAQ Accordion
+      document.querySelectorAll('.faq-item').forEach(item => {
+        item.addEventListener('click', () => {
+          const p = item.querySelector('p');
+          const span = item.querySelector('span');
+          if (p.classList.contains('hidden')) {
+            p.classList.remove('hidden');
+            span.textContent = '-';
+          } else {
+            p.classList.add('hidden');
+            span.textContent = '+';
+          }
+        });
+      });
+
+      // Load Featured Doctors
+      try {
+        const doctors = await DataService.getDoctors();
+        // Save to window for the autocomplete logic to access
+        window.cachedDoctors = doctors;
+
+        const featuredGrid = document.getElementById('featured-docs-grid');
+        
+        if (doctors && doctors.length > 0) {
+          const docsHtml = doctors.slice(0, 3).map(doc => `
+            <div class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden hover-float transition-all flex flex-col group">
+              <div class="h-64 overflow-hidden relative">
+                <img src="${doc.image || 'https://via.placeholder.com/400'}" alt="${doc.name}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 lazy-load">
+                <div class="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-xl text-sm font-bold text-dark flex items-center gap-1 shadow-lg">
+                  <span class="text-yellow-500">★</span> ${doc.rating}
+                </div>
+              </div>
+              <div class="p-8 flex flex-col flex-grow">
+                <h3 class="font-bold text-2xl text-dark mb-1 group-hover:text-primary-600 transition-colors">${doc.name}</h3>
+                <p class="text-base font-medium text-primary-600 mb-6">${doc.specialization}</p>
+                
+                <div class="space-y-3 mb-8 text-sm text-slate-600 flex-grow font-medium">
+                  <div class="flex items-center gap-3">
+                    <span class="text-slate-400">📍</span>
+                    ${doc.city}
+                  </div>
+                  <div class="flex items-center gap-3">
+                    <span class="text-slate-400">📅</span>
+                    ${doc.experience}
+                  </div>
+                </div>
+                
+                <a href="doctor.html?id=${doc.id}" class="w-full text-center bg-primary-50 text-primary-700 hover:bg-primary-600 hover:text-white font-bold py-3.5 rounded-xl transition-colors">
+                  View Profile
+                </a>
+              </div>
+            </div>
+          `).join('');
+          featuredGrid.innerHTML = docsHtml;
+        } else {
+          featuredGrid.innerHTML = `<div class="col-span-3 text-center text-slate-500 py-10">No doctors currently available in the directory. Please sign up as a provider first!</div>`;
+        }
+      } catch (err) {
+        console.error("Supabase might not be configured yet:", err);
+      }
+
+      /* Autocomplete Logic Engine */
+      const searchInput = document.getElementById('main-search-input');
+      const dropdown = document.getElementById('autocomplete-dropdown');
+      
+      function renderDropdown(val) {
+        window.cachedDoctors = window.cachedDoctors || [];
+        const matched = [];
+        const uniqueSpecialties = new Set();
+        const uniqueDoctors = new Set();
+        
+        if (!val) {
+          window.cachedDoctors.forEach(doc => {
+            if (doc.specialization && !uniqueSpecialties.has(doc.specialization)) {
+              uniqueSpecialties.add(doc.specialization);
+              matched.push({ type: 'specialty', text: doc.specialization, icon: '⚕️' });
+            }
+          });
+          const topDocs = window.cachedDoctors.slice(0, 5);
+          topDocs.forEach(doc => {
+            matched.push({ type: 'featured doctor', text: doc.name, icon: '👨‍⚕️' });
+          });
+        } else {
+          window.cachedDoctors.forEach(doc => {
+            if (doc.specialization.toLowerCase().includes(val) && !uniqueSpecialties.has(doc.specialization)) {
+              uniqueSpecialties.add(doc.specialization);
+              matched.push({ type: 'specialty', text: doc.specialization, icon: '⚕️' });
+            }
+            if (doc.name.toLowerCase().includes(val) && !uniqueDoctors.has(doc.name)) {
+              uniqueDoctors.add(doc.name);
+              matched.push({ type: 'doctor', text: doc.name, icon: '👨‍⚕️' });
+            }
+          });
+        }
+
+        if (matched.length === 0) {
+          dropdown.innerHTML = '<div class="p-4 text-slate-500 text-sm italic">No suggested doctors or specialties found...</div>';
+        } else {
+          if (val) matched.sort((a,b) => a.type === 'specialty' ? -1 : 1);
+          
+          let html = !val ? '<div class="px-4 py-2 text-xs font-bold text-slate-400 bg-slate-50 border-b border-slate-100 uppercase tracking-wider">Top Suggestions</div>' : '';
+          
+          html += matched.map(m => `
+            <div class="px-4 py-3 hover:bg-slate-50 cursor-pointer flex justify-between items-center transition-colors autocomplete-item border-b border-slate-50" data-val="${m.text}">
+              <div class="flex items-center gap-3">
+                <span class="text-xl opacity-60">${m.icon}</span>
+                <span class="font-semibold text-dark text-base">${m.text}</span>
+              </div>
+              <span class="text-xs text-primary-600 font-bold px-2 py-1 bg-primary-50 rounded-lg capitalize border border-primary-100">${m.type}</span>
+            </div>
+          `).join('');
+          
+          dropdown.innerHTML = html;
+
+          dropdown.querySelectorAll('.autocomplete-item').forEach(item => {
+            item.addEventListener('click', () => {
+              searchInput.value = item.getAttribute('data-val');
+              dropdown.classList.add('hidden');
+            });
+          });
+        }
+        dropdown.classList.remove('hidden');
+      }
+
+      ['focus', 'click', 'input'].forEach(evt => {
+        searchInput.addEventListener(evt, (e) => {
+          renderDropdown(e.target.value.toLowerCase().trim());
+        });
+      });
+
+      // Hide dropdown on off-click
+      document.addEventListener('click', (e) => {
+        if(searchInput && !searchInput.contains(e.target) && !dropdown.contains(e.target)) {
+          dropdown.classList.add('hidden');
+        }
+      });
+      
+    });
+  </script>
+</body>
+
+</html>

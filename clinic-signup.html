@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register Clinic - QuickDoc</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: { colors: { primary: { 50: '#f0f9ff', 100: '#e0f2fe', 500: '#0ea5e9', 600: '#0284c7', 700: '#0369a1' }, secondary: '#22c55e', accent: '#f8fafc', dark: '#0f172a' }, fontFamily: { sans: ['Inter', 'sans-serif'] } } } }
+  </script>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" type="image/png" href="logo/icon.png">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="auth-page-premium flex flex-col min-h-screen">
+  
+  <header class="absolute w-full top-0 z-50 bg-white/60 backdrop-blur-xl border-b border-white/30">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-20">
+        <a href="index.html" class="flex items-center group">
+          <img src="logo/primary.png" alt="QwikDoc Logo" class="h-14 w-auto hidden md:block object-contain">
+          <img src="logo/icon.png" alt="QwikDoc Icon" class="h-12 w-auto md:hidden object-contain">
+          <span class="ml-4 px-2 py-0.5 bg-green-100 text-green-700 text-xs font-bold rounded">Clinic Partner</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-grow flex items-center justify-center pt-28 pb-16 px-4">
+    <div class="max-w-lg w-full">
+      <div class="auth-card-premium rounded-3xl p-8 fade-in relative overflow-hidden">
+        <div class="text-center mb-8 relative z-10">
+          <h2 class="text-3xl font-bold text-dark">Register Clinic</h2>
+          <p class="text-slate-500 mt-2 text-sm">Join the QuickDoc provider network</p>
+        </div>
+
+        <form id="clinic-signup-form" class="space-y-5 relative z-10">
+          <div>
+            <label class="block text-sm font-semibold text-slate-700 mb-2">Clinic / Hospital Name</label>
+            <input type="text" id="name" required class="auth-input w-full px-4 py-3 rounded-xl" placeholder="e.g. City Life Hospital">
+          </div>
+          <div>
+            <label class="block text-sm font-semibold text-slate-700 mb-2">Email Address</label>
+            <input type="email" id="email" required class="auth-input w-full px-4 py-3 rounded-xl" placeholder="contact@hospital.com">
+          </div>
+          <div>
+            <label class="block text-sm font-semibold text-slate-700 mb-2">Password</label>
+            <input type="password" id="password" required minlength="6" class="auth-input w-full px-4 py-3 rounded-xl" placeholder="••••••••">
+          </div>
+          <div>
+            <label class="block text-sm font-semibold text-slate-700 mb-2">Full Address</label>
+            <input type="text" id="address" required class="auth-input w-full px-4 py-3 rounded-xl" placeholder="123 Health St, Sector 5">
+          </div>
+          <div>
+            <label class="block text-sm font-semibold text-slate-700 mb-2">Pincode</label>
+            <input type="text" id="pin" required class="auth-input w-full px-4 py-3 rounded-xl" placeholder="560001">
+          </div>
+          <div>
+            <label class="block text-sm font-semibold text-slate-700 mb-2">Phone</label>
+            <input type="text" id="phone" required class="auth-input w-full px-4 py-3 rounded-xl" placeholder="+91 98765 43210">
+          </div>
+
+          <div id="error-msg" class="hidden bg-red-50 text-red-600 px-4 py-3 rounded-lg text-sm font-medium border border-red-100"></div>
+
+          <button type="submit" id="submit-btn" class="auth-btn-primary w-full text-white font-bold py-3.5 rounded-xl transition-all active:scale-[0.98] flex items-center justify-center gap-2">
+            <span>Create Profile</span>
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+          </button>
+        </form>
+
+        <p class="mt-8 text-center text-sm font-medium text-slate-600 relative z-10">
+          Already registered? <a href="clinic-login.html" class="text-primary-600 hover:text-primary-800 transition-colors">Sign in here</a>
+        </p>
+      </div>
+    </div>
+  </main>
+
+  <script src="js/supabase.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const form = document.getElementById('clinic-signup-form');
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const clinicData = {
+          name: document.getElementById('name').value.trim(),
+          email: document.getElementById('email').value.trim(),
+          password: document.getElementById('password').value,
+          address: document.getElementById('address').value.trim(),
+          pin: document.getElementById('pin').value.trim(),
+          phone: document.getElementById('phone').value.trim(),
+        };
+
+        const btn = document.getElementById('submit-btn');
+        const errDiv = document.getElementById('error-msg');
+        
+        btn.disabled = true;
+        btn.innerHTML = '<div class="spinner border-white border-t-transparent w-5 h-5"></div> Registering...';
+        errDiv.classList.add('hidden');
+
+        try {
+          const newClinic = await DataService.saveClinic(clinicData);
+          localStorage.setItem('clinicId', newClinic.id);
+          window.location.href = 'clinic-dashboard.html';
+        } catch (error) {
+          errDiv.textContent = error.message || 'Registration failed';
+          errDiv.classList.remove('hidden');
+          btn.disabled = false;
+          btn.innerHTML = '<span>Create Profile</span><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>';
+        }
+      });
+    });
+  </script>
+</body>
+</html>

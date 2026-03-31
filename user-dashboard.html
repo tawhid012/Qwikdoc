@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Patient Dashboard - QuickDoc</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: { colors: { primary: { 50: '#f0f9ff', 100: '#e0f2fe', 500: '#0ea5e9', 600: '#0284c7', 700: '#0369a1' }, secondary: '#22c55e', accent: '#f8fafc', dark: '#0f172a' }, fontFamily: { sans: ['Inter', 'sans-serif'] } } } }
+  </script>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" type="image/png" href="logo/icon.png">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="bg-slate-50 text-dark flex flex-col min-h-screen">
+
+  <header id="main-header" class="fixed w-full top-0 z-50 bg-white border-b border-slate-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-20">
+        <div class="flex-shrink-0 flex items-center">
+          <a href="index.html" class="flex items-center group">
+            <img src="logo/primary.png" alt="QuickDoc Logo" class="h-14 w-auto hidden md:block object-contain">
+            <img src="logo/icon.png" alt="QuickDoc Icon" class="h-12 w-auto md:hidden object-contain">
+          </a>
+        </div>
+        <div class="hidden md:flex items-center space-x-8">
+          <a href="search.html" class="font-medium hover:text-primary-600 text-slate-700 transition">Book a Doctor</a>
+        </div>
+        <div class="hidden md:flex items-center space-x-4" id="auth-menu-container"></div>
+        <div class="md:hidden flex items-center"><button id="mobile-menu-btn"><svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg></button></div>
+      </div>
+    </div>
+    <div id="mobile-menu" class="hidden bg-white border-t border-slate-100 absolute w-full shadow-md"><div id="mobile-auth-container" class="pb-4"></div></div>
+  </header>
+
+  <main class="flex-grow pt-28 pb-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="flex flex-col lg:flex-row gap-8">
+        
+        <!-- Sidebar -->
+        <div class="w-full lg:w-1/4 mb-8 lg:mb-0">
+          <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 sticky top-28 fade-in">
+            <div class="flex items-center gap-4 mb-6">
+              <div class="w-16 h-16 rounded-full bg-primary-50 text-primary-600 flex items-center justify-center text-2xl font-bold" id="user-avatar">?</div>
+              <div>
+                <h2 class="font-bold text-dark text-lg" id="user-name">Loading...</h2>
+                <p class="text-sm text-slate-500" id="user-role">Patient Account</p>
+              </div>
+            </div>
+            
+            <nav class="space-y-2 mb-8">
+              <a href="user-dashboard.html" class="flex items-center gap-3 px-4 py-3 bg-primary-50 text-primary-700 rounded-xl font-medium transition">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                My Appointments
+              </a>
+              <a href="search.html" class="flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-50 rounded-xl font-medium transition">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                Find Doctors
+              </a>
+            </nav>
+
+            <button onclick="AuthService.logout()" class="w-full flex items-center gap-3 px-4 py-3 text-red-600 hover:bg-red-50 rounded-xl font-medium transition text-left">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+              Logout
+            </button>
+          </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="w-full lg:w-3/4 fade-in" style="animation-delay: 0.1s;">
+          <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 sm:p-8 min-h-[500px]">
+            <div class="flex justify-between items-center mb-8 border-b border-slate-100 pb-4">
+              <h2 class="text-2xl font-bold text-dark">Upcoming Appointments</h2>
+            </div>
+            
+            <div id="appointments-list" class="space-y-4">
+              <div class="spinner mx-auto my-10"></div>
+            </div>
+
+            <div class="mt-12 flex justify-center">
+              <a href="search.html" class="inline-flex items-center gap-2 bg-primary-600 hover:bg-primary-700 text-white font-bold py-3 px-8 rounded-xl transition-colors shadow-md">
+                + Book New Appointment
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="js/supabase.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      // Wait for auth to fully resolve before checking state
+      await AuthService.ready;
+
+      if (!AuthService.isAuthenticated() || AuthService.getCurrentUser().role !== 'patient') {
+        window.location.href = 'login.html';
+        return;
+      }
+
+      const user = AuthService.getCurrentUser();
+      document.getElementById('user-name').textContent = user.name;
+      document.getElementById('user-avatar').textContent = user.name.charAt(0).toUpperCase();
+
+      await loadAppointments();
+
+      async function loadAppointments() {
+        const user = AuthService.getCurrentUser();
+        if (!user) return;
+        
+        try {
+          const bookings = await DataService.getUserBookings(user.id);
+          const listContainer = document.getElementById('appointments-list');
+          
+          if (!bookings || bookings.length === 0) {
+            listContainer.innerHTML = `
+              <div class="text-center py-12">
+                <div class="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">📅</div>
+                <h3 class="text-lg font-bold text-dark mb-2">No Appointments Yet</h3>
+                <p class="text-slate-500">You don't have any medical appointments scheduled.</p>
+              </div>
+            `;
+            return;
+          }
+
+          let html = '';
+          bookings.forEach(b => {
+            let statusBadge = '';
+            let cancelAction = '';
+
+            if (b.status === 'upcoming') {
+              statusBadge = '<span class="px-3 py-1 bg-green-100 text-green-700 rounded-lg text-sm font-semibold">Upcoming</span>';
+              cancelAction = `<button onclick="cancelAppt('${b.id}')" class="text-red-500 hover:underline text-sm font-medium mt-4 sm:mt-0">Cancel</button>`;
+            } else if (b.status === 'completed') {
+              statusBadge = '<span class="px-3 py-1 bg-slate-100 text-slate-600 rounded-lg text-sm font-semibold">Completed</span>';
+            } else {
+              statusBadge = '<span class="px-3 py-1 bg-red-100 text-red-700 rounded-lg text-sm font-semibold">Cancelled</span>';
+            }
+
+            html += `
+              <div class="border border-slate-100 rounded-2xl p-5 hover:shadow-md transition-shadow flex flex-col sm:flex-row gap-6 bg-white shrink-0">
+                <img src="${b.doctorImage}" alt="${b.doctorName}" class="w-16 h-16 rounded-xl object-cover shrink-0">
+                <div class="flex-grow">
+                  <h3 class="font-bold text-dark text-lg">${b.doctorName}</h3>
+                  <p class="text-primary-600 text-sm font-medium mb-3">${b.doctorSpecialty}</p>
+                  <div class="flex flex-wrap gap-4 text-sm text-slate-600 bg-slate-50 p-3 rounded-xl border border-slate-100">
+                    <div class="flex items-center gap-2 font-semibold">📅 ${b.date} &nbsp; ⏰ ${b.time}</div>
+                  </div>
+                </div>
+                <div class="flex flex-col justify-between items-start sm:items-end">
+                  ${statusBadge}
+                  ${cancelAction}
+                </div>
+              </div>
+            `;
+          });
+          
+          listContainer.innerHTML = html;
+        } catch (error) {
+          console.error("Error loading appointments", error);
+        }
+      }
+
+      window.cancelAppt = async function(id) {
+        if(confirm('Are you sure you want to cancel this appointment?')) {
+          try {
+            await DataService.updateAppointmentStatus(id, 'cancelled');
+            showToast('Appointment cancelled successfully');
+            await loadAppointments();
+          } catch(e) {
+            showToast('Failed to cancel appointment', 'error');
+          }
+        }
+      };
+    });
+  </script>
+</body>
+</html>
