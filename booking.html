@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -18,8 +19,16 @@
       color: #991b1b !important;
       border-color: #fca5a5 !important;
     }
+
+    /* Hide dates from previous and next months to ensure only current month is visible */
+    .flatpickr-day.prevMonthDay,
+    .flatpickr-day.nextMonthDay {
+      visibility: hidden;
+      pointer-events: none;
+    }
   </style>
 </head>
+
 <body class="bg-slate-50 text-dark flex flex-col min-h-screen">
 
   <header id="main-header" class="fixed w-full top-0 z-50 bg-white border-b border-slate-100">
@@ -27,8 +36,7 @@
       <div class="flex justify-between items-center h-20">
         <div class="flex-shrink-0 flex items-center">
           <a href="index.html" class="flex items-center group">
-            <img src="logo/primary.png" alt="QwikDoc Logo" class="h-14 w-auto hidden md:block object-contain">
-            <img src="logo/icon.png" alt="QwikDoc Icon" class="h-12 w-auto md:hidden object-contain">
+            <img src="logo/primary.png" alt="QwikDoc Logo" class="h-14 w-auto object-contain">
           </a>
         </div>
         <div class="hidden md:flex items-center space-x-4" id="auth-menu-container"></div>
@@ -38,9 +46,10 @@
 
   <main class="flex-grow pt-28 pb-16">
     <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-      
+
       <div class="bg-white rounded-3xl shadow-lg border border-slate-100 overflow-hidden fade-in relative">
-        <div id="loading-overlay" class="absolute inset-0 bg-white/80 backdrop-blur-sm z-10 hidden flex-col items-center justify-center">
+        <div id="loading-overlay"
+          class="absolute inset-0 bg-white/80 backdrop-blur-sm z-10 hidden flex-col items-center justify-center">
           <div class="spinner w-10 h-10 border-4 border-t-primary-600"></div>
           <p class="font-bold text-dark mt-4">Confirming Booking...</p>
         </div>
@@ -49,54 +58,70 @@
           <h2 class="text-2xl font-bold text-white">Complete Booking</h2>
           <span class="bg-white/20 text-white px-3 py-1 rounded text-sm font-semibold">100% Secure</span>
         </div>
-        
+
         <div class="p-8">
-          <div id="doctor-summary" class="mb-8 p-4 bg-slate-50 rounded-xl border border-slate-100 flex items-center gap-4">
+          <div id="doctor-summary"
+            class="mb-8 p-4 bg-slate-50 rounded-xl border border-slate-100 flex items-center gap-4">
             <!-- Dynamic docs injected -->
           </div>
 
-          <div id="no-venue-msg" class="hidden mb-6 p-4 bg-amber-50 border border-amber-200 rounded-xl text-amber-800 text-sm font-medium"></div>
+          <div id="no-venue-msg"
+            class="hidden mb-6 p-4 bg-amber-50 border border-amber-200 rounded-xl text-amber-800 text-sm font-medium">
+          </div>
 
           <form id="booking-form" class="space-y-6">
             <h3 class="text-lg font-bold text-dark border-b border-slate-100 pb-2">Patient Details</h3>
-            
+
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label class="block text-sm font-semibold text-slate-700 mb-1">Full Name</label>
-                <input type="text" id="b-name" required class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary-500 outline-none transition font-medium text-slate-700 bg-slate-50 focus:bg-white" placeholder="John Doe">
+                <input type="text" id="b-name" required
+                  class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary-500 outline-none transition font-medium text-slate-700 bg-slate-50 focus:bg-white"
+                  placeholder="John Doe">
               </div>
               <div>
                 <label class="block text-sm font-semibold text-slate-700 mb-1">Phone Number</label>
-                <input type="tel" id="b-phone" required class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary-500 outline-none transition font-medium text-slate-700 bg-slate-50 focus:bg-white" placeholder="+1 (555) 000-0000">
+                <input type="tel" id="b-phone" required
+                  class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary-500 outline-none transition font-medium text-slate-700 bg-slate-50 focus:bg-white"
+                  placeholder="+1 (555) 000-0000">
               </div>
               <div class="md:col-span-2">
                 <label class="block text-sm font-semibold text-slate-700 mb-1">Email Address</label>
-                <input type="email" id="b-email" required class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary-500 outline-none transition font-medium text-slate-700 bg-slate-50 focus:bg-white" placeholder="john@example.com">
+                <input type="email" id="b-email" required
+                  class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary-500 outline-none transition font-medium text-slate-700 bg-slate-50 focus:bg-white"
+                  placeholder="john@example.com">
               </div>
               <div class="md:col-span-2">
                 <label class="block text-sm font-semibold text-slate-700 mb-1">Address</label>
-                <textarea id="b-address" rows="3" required class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary-500 outline-none transition font-medium text-slate-700 bg-slate-50 focus:bg-white resize-none" placeholder="Street, area, city"></textarea>
+                <textarea id="b-address" rows="3" required
+                  class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary-500 outline-none transition font-medium text-slate-700 bg-slate-50 focus:bg-white resize-none"
+                  placeholder="Street, area, city"></textarea>
               </div>
             </div>
 
             <h3 class="text-lg font-bold text-dark border-b border-slate-100 pb-2 pt-4">Appointment Schedule</h3>
-            
+
             <div>
               <label class="block text-sm font-semibold text-slate-700 mb-1">Venue (Clinic)</label>
-              <select id="b-venue" required class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary-500 outline-none transition font-medium text-slate-700 bg-slate-50 focus:bg-white">
+              <select id="b-venue" required
+                class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary-500 outline-none transition font-medium text-slate-700 bg-slate-50 focus:bg-white">
                 <option value="">Select a venue...</option>
               </select>
-              <p class="text-xs text-slate-500 mt-2">Dates when the doctor is not available at this venue are shown in red and cannot be selected.</p>
+              <p class="text-xs text-slate-500 mt-2">Dates when the doctor is not available at this venue are shown in
+                red and cannot be selected.</p>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label class="block text-sm font-semibold text-slate-700 mb-1">Select Date</label>
-                <input type="text" id="b-date" required readonly class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary-500 outline-none transition font-medium text-slate-700 bg-slate-50 focus:bg-white cursor-pointer" placeholder="Pick a date">
+                <input type="text" id="b-date" required readonly
+                  class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary-500 outline-none transition font-medium text-slate-700 bg-slate-50 focus:bg-white cursor-pointer"
+                  placeholder="Pick a date">
               </div>
               <div>
                 <label class="block text-sm font-semibold text-slate-700 mb-1">Select Time</label>
-                <select id="b-time" required class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary-500 outline-none transition font-medium text-slate-700 bg-slate-50 focus:bg-white">
+                <select id="b-time" required
+                  class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary-500 outline-none transition font-medium text-slate-700 bg-slate-50 focus:bg-white">
                   <option value="">Choose a time slot...</option>
                 </select>
               </div>
@@ -104,25 +129,36 @@
 
             <div class="pt-4">
               <label class="block text-sm font-semibold text-slate-700 mb-1">Reason for Visit (Optional)</label>
-              <textarea id="b-reason" rows="3" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary-500 outline-none transition font-medium text-slate-700 bg-slate-50 focus:bg-white resize-none" placeholder="Briefly describe your symptoms or reason for consulting..."></textarea>
+              <textarea id="b-reason" rows="3"
+                class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-primary-500 outline-none transition font-medium text-slate-700 bg-slate-50 focus:bg-white resize-none"
+                placeholder="Briefly describe your symptoms or reason for consulting..."></textarea>
             </div>
 
             <div class="pt-6">
-              <button type="submit" class="w-full bg-dark text-white font-bold text-lg py-4 rounded-xl shadow-lg hover:bg-slate-800 focus:ring-4 focus:ring-slate-300 transition-all flex justify-center items-center gap-2">
+              <button type="submit"
+                class="w-full bg-dark text-white font-bold text-lg py-4 rounded-xl shadow-lg hover:bg-slate-800 focus:ring-4 focus:ring-slate-300 transition-all flex justify-center items-center gap-2">
                 Confirm Appointment &nbsp;🔒
               </button>
             </div>
-            <p class="text-center text-xs font-semibold text-slate-400">By booking, you agree to our Terms of Service. You will not be charged now.</p>
+            <p class="text-center text-xs font-semibold text-slate-400">By booking, you agree to our Terms of Service.
+              You will not be charged now.</p>
           </form>
-          
+
           <!-- Success State -->
           <div id="success-state" class="hidden text-center py-10">
-            <div class="w-24 h-24 bg-green-100 text-green-600 rounded-full flex items-center justify-center text-5xl mx-auto mb-6 shadow-sm border-4 border-green-50">✓</div>
+            <div
+              class="w-24 h-24 bg-green-100 text-green-600 rounded-full flex items-center justify-center text-5xl mx-auto mb-6 shadow-sm border-4 border-green-50">
+              ✓</div>
             <h2 class="text-3xl font-bold text-dark mb-4">Booking Confirmed!</h2>
-            <p class="text-slate-600 font-medium mb-8 max-w-md mx-auto">Your appointment has been successfully scheduled. We've sent the details to your email.</p>
+            <p class="text-slate-600 font-medium mb-8 max-w-md mx-auto">Your appointment has been successfully
+              scheduled. We've sent the details to your email.</p>
             <div class="flex flex-col sm:flex-row justify-center gap-4">
-              <a href="user-dashboard.html" class="bg-primary-600 text-white font-bold py-3 px-8 rounded-xl shadow-md hover:bg-primary-700 transition">View Dashboard</a>
-              <a href="index.html" class="bg-slate-100 text-slate-700 font-bold py-3 px-8 rounded-xl hover:bg-slate-200 transition">Return Home</a>
+              <a href="user-dashboard.html"
+                class="bg-primary-600 text-white font-bold py-3 px-8 rounded-xl shadow-md hover:bg-primary-700 transition">View
+                Dashboard</a>
+              <a href="index.html"
+                class="bg-slate-100 text-slate-700 font-bold py-3 px-8 rounded-xl hover:bg-slate-200 transition">Return
+                Home</a>
             </div>
           </div>
         </div>
@@ -139,7 +175,7 @@
     document.addEventListener('DOMContentLoaded', async () => {
       const urlParams = new URLSearchParams(window.location.search);
       const doctorId = urlParams.get('id');
-      
+
       if (!doctorId) {
         window.location.href = 'search.html';
         return;
@@ -157,7 +193,7 @@
         }
 
         const user = AuthService.getCurrentUser();
-        if(user.role === 'patient') {
+        if (user.role === 'patient') {
           document.getElementById('b-name').value = user.name;
           document.getElementById('b-email').value = user.email;
           if (user.phone) document.getElementById('b-phone').value = user.phone;
@@ -252,7 +288,7 @@
 
           parsedSchedule = window.ScheduleParser.parseVenueSchedule(link.schedule || '');
           if (!parsedSchedule) {
-            parsedSchedule = { weekdays: new Set([1,2,3,4,5]), slotLabels: ['09:00 AM','10:00 AM','11:00 AM','02:00 PM','04:00 PM'] };
+            parsedSchedule = { weekdays: new Set([1, 2, 3, 4, 5]), slotLabels: ['09:00 AM', '10:00 AM', '11:00 AM', '02:00 PM', '04:00 PM'] };
           }
 
           const allowed = parsedSchedule.weekdays;
@@ -288,15 +324,15 @@
           setupVenueSchedule(venueLinks[0].id);
         }
 
-      } catch(e) {
+      } catch (e) {
         console.error(e);
       }
 
       document.getElementById('booking-form').addEventListener('submit', async (e) => {
         e.preventDefault();
-        
+
         const user = AuthService.getCurrentUser();
-        if(!user) {
+        if (!user) {
           showToast('Please login to book.', 'error');
           return;
         }
@@ -338,14 +374,14 @@
 
         try {
           await DataService.saveBooking(bookingObj);
-          
+
           overlay.classList.remove('flex');
           overlay.classList.add('hidden');
-          
+
           document.getElementById('booking-form').classList.add('hidden');
           document.getElementById('doctor-summary').classList.add('hidden');
           document.getElementById('success-state').classList.remove('hidden');
-        } catch(err) {
+        } catch (err) {
           showToast('Booking failed. Attempting to book without DB connection.', 'error');
           overlay.classList.remove('flex');
           overlay.classList.add('hidden');
@@ -354,4 +390,5 @@
     });
   </script>
 </body>
+
 </html>

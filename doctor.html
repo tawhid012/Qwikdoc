@@ -19,8 +19,7 @@
       <div class="flex justify-between items-center h-20">
         <div class="flex-shrink-0 flex items-center">
           <a href="index.html" class="flex items-center group">
-            <img src="logo/primary.png" alt="QwikDoc Logo" class="h-14 w-auto hidden md:block object-contain">
-            <img src="logo/icon.png" alt="QwikDoc Icon" class="h-12 w-auto md:hidden object-contain">
+            <img src="logo/primary.png" alt="QwikDoc Logo" class="h-14 w-auto object-contain">
           </a>
         </div>
         <div class="hidden md:flex items-center space-x-4" id="auth-menu-container"></div>
@@ -73,12 +72,12 @@
               <img src="${doc.image || 'https://via.placeholder.com/400'}" alt="${doc.name}" class="w-40 h-40 rounded-2xl object-cover border-4 border-white shadow-xl -mt-16 bg-white shrink-0">
               
               <div class="pt-4 md:pt-6 flex-grow flex flex-col md:flex-row justify-between gap-6">
-                <div>
-                  <h1 class="text-3xl font-extrabold text-dark mb-2">${doc.name}${doc.degree ? `<span class="text-xl font-bold text-slate-600 ml-2">(${doc.degree})</span>` : ''}</h1>
-                  <p class="text-lg text-primary-600 font-medium mb-4">${doc.specialization}</p>
-                  <div class="flex flex-wrap gap-4 text-sm font-medium text-slate-600">
-                    <span class="flex items-center gap-1"><span class="text-yellow-500">★</span> ${parseFloat(doc.rating).toFixed(1)} (${doc.reviews} Reviews)</span>
-                    <span class="flex items-center gap-1 bg-slate-100 px-2 py-0.5 rounded text-dark">${doc.experience} Experience</span>
+                <div class="px-2">
+                  <h1 class="text-2xl sm:text-3xl font-extrabold text-dark mb-2">${doc.name}${doc.degree ? `<span class="text-lg sm:text-xl font-bold text-slate-600 block sm:inline mt-1 sm:mt-0">(${doc.degree})</span>` : ''}</h1>
+                  <p class="text-base sm:text-lg text-primary-600 font-bold mb-4">${doc.specialization}</p>
+                  <div class="flex flex-wrap gap-3 text-xs sm:text-sm font-bold text-slate-500">
+                    <span class="flex items-center gap-1 bg-yellow-50 text-yellow-700 px-2 py-1 rounded-lg"><span class="text-yellow-500">★</span> ${parseFloat(doc.rating).toFixed(1)} (${doc.reviews} Reviews)</span>
+                    <span class="flex items-center gap-1 bg-slate-100 text-slate-600 px-2 py-1 rounded-lg">${doc.experience} Experience</span>
                   </div>
                 </div>
                 

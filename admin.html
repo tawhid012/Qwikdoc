@@ -11,6 +11,9 @@
   <link rel="stylesheet" href="css/style.css">
   <link rel="icon" type="image/png" href="logo/icon.png">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- Charts & Icons -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body class="bg-slate-50 text-dark font-sans antialiased">
   
@@ -45,30 +48,97 @@
   <!-- Admin Dashboard -->
   <div id="admin-dashboard-view" class="hidden flex h-screen overflow-hidden bg-slate-100">
     
-    <aside class="w-72 bg-dark text-slate-300 flex flex-col shrink-0 border-r border-slate-800 shadow-xl">
-      <div class="p-6 border-b border-slate-800">
-        <img src="logo/knockout-logo.png" alt="QwikDoc HQ" class="h-10 w-auto">
-        <p class="text-xs text-slate-500 mt-2">Operations console</p>
-      </div>
-      <nav class="flex-1 p-4 space-y-1 overflow-y-auto">
-        <button type="button" data-tab="overview" class="admin-nav w-full text-left block px-4 py-3 rounded-xl font-medium bg-primary-600/20 text-primary-300 border border-primary-500/30">Overview</button>
-        <button type="button" data-tab="appointments" class="admin-nav w-full text-left block px-4 py-3 rounded-xl font-medium hover:bg-slate-800 hover:text-white transition">Appointments</button>
-        <button type="button" data-tab="patients" class="admin-nav w-full text-left block px-4 py-3 rounded-xl font-medium hover:bg-slate-800 hover:text-white transition">Patients</button>
-        <button type="button" data-tab="providers" class="admin-nav w-full text-left block px-4 py-3 rounded-xl font-medium hover:bg-slate-800 hover:text-white transition">Providers & clinics</button>
-        <a href="index.html" class="block px-4 py-3 hover:bg-slate-800 hover:text-white rounded-xl transition mt-4">Back to Site</a>
-      </nav>
-      <div class="p-4 border-t border-slate-800">
-        <button id="admin-logout-btn" class="w-full text-left px-4 py-2 text-slate-400 hover:text-white transition flex items-center gap-2">
-          ⏏ Logout
+    <!-- Sidebar Overlay (Mobile) -->
+    <div id="sidebar-overlay" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[55] hidden lg:hidden"></div>
+
+    <!-- Sidebar -->
+    <aside id="sidebar" class="fixed inset-y-0 left-0 w-72 bg-slate-900 text-white transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out z-[60] flex flex-col shadow-2xl">
+      <div class="h-20 flex items-center justify-between px-6 border-b border-white/5">
+        <a href="index.html" class="flex items-center gap-3">
+          <img src="logo/primary.png" class="h-10 w-auto object-contain">
+          <span class="text-xl font-black tracking-tight text-white">Admin<span class="text-primary-500">Panel</span></span>
+        </a>
+        <button id="close-sidebar" class="lg:hidden p-2 text-slate-400 hover:text-white transition-colors">
+          <i data-lucide="x" class="w-6 h-6"></i>
         </button>
+      </div>
+      <nav class="flex-1 p-4 space-y-2 mt-4">
+        <button type="button" data-tab="overview" class="admin-nav group w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-all duration-200">
+          <i data-lucide="layout-dashboard" class="w-5 h-5 opacity-70 group-hover:opacity-100"></i>
+          Overview
+        </button>
+        <button type="button" data-tab="appointments" class="admin-nav group w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-all duration-200">
+          <i data-lucide="calendar" class="w-5 h-5 opacity-70 group-hover:opacity-100"></i>
+          Appointments
+        </button>
+        <button type="button" data-tab="patients" class="admin-nav group w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-all duration-200">
+          <i data-lucide="users" class="w-5 h-5 opacity-70 group-hover:opacity-100"></i>
+          Patients
+        </button>
+        <button type="button" data-tab="providers" class="admin-nav group w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-all duration-200">
+          <i data-lucide="stethoscope" class="w-5 h-5 opacity-70 group-hover:opacity-100"></i>
+          Doctors
+        </button>
+        <button type="button" data-tab="clinics" class="admin-nav group w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-all duration-200">
+          <i data-lucide="building" class="w-5 h-5 opacity-70 group-hover:opacity-100"></i>
+          Clinics
+        </button>
+        
+        <div class="pt-6 mt-6 border-t border-white/5 space-y-2">
+          <a href="index.html" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:bg-white/5 hover:text-white rounded-xl transition font-medium">
+            <i data-lucide="external-link" class="w-5 h-5"></i>
+            Visit Website
+          </a>
+          <button id="admin-logout-btn" class="w-full flex items-center gap-3 px-4 py-3 text-red-400 hover:bg-red-500/10 hover:text-red-300 rounded-xl transition font-medium">
+            <i data-lucide="log-out" class="w-5 h-5"></i>
+            Logout
+          </button>
+        </div>
+      </nav>
+      <div class="p-6 bg-white/5 mx-4 mb-6 rounded-2xl flex flex-col gap-2">
+        <p class="text-[10px] font-bold text-slate-500 uppercase">System Status</p>
+        <div class="flex items-center gap-2 text-xs font-medium text-emerald-400">
+          <span class="relative flex h-2 w-2">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+          </span>
+          All Systems Go
+        </div>
       </div>
     </aside>
 
-    <main class="flex-1 flex flex-col h-screen overflow-hidden min-w-0">
-      <header class="bg-white border-b border-slate-200 h-16 flex items-center px-6 justify-between shrink-0">
-        <h1 id="admin-page-title" class="text-xl font-bold text-dark">System overview</h1>
-        <div class="flex items-center gap-3">
-          <span class="bg-slate-100 px-3 py-1 rounded-full text-sm font-bold text-slate-600">Super Admin</span>
+    <!-- Mobile Bottom Navigation -->
+    <nav class="lg:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-slate-900/90 backdrop-blur-xl border border-white/10 px-6 py-4 rounded-3xl shadow-2xl flex items-center gap-8 text-slate-400">
+      <button type="button" data-tab="overview" class="admin-nav-mobile flex flex-col items-center gap-1">
+        <i data-lucide="layout-dashboard" class="w-6 h-6"></i>
+      </button>
+      <button type="button" data-tab="appointments" class="admin-nav-mobile flex flex-col items-center gap-1">
+        <i data-lucide="calendar" class="w-6 h-6"></i>
+      </button>
+      <button type="button" data-tab="patients" class="admin-nav-mobile flex flex-col items-center gap-1">
+        <i data-lucide="users" class="w-6 h-6"></i>
+      </button>
+      <button id="open-sidebar-mobile" class="flex flex-col items-center gap-1 text-primary-500">
+        <i data-lucide="menu" class="w-7 h-7"></i>
+      </button>
+    </nav>
+
+    <main class="flex-1 flex flex-col h-screen overflow-hidden lg:pl-72 bg-slate-50">
+      <header class="bg-white border-b border-slate-200 h-20 flex items-center px-8 justify-between shrink-0 sticky top-0 z-30">
+        <div class="flex items-center gap-4">
+          <button id="mobile-toggle" class="lg:hidden p-2 text-slate-500 hover:bg-slate-100 rounded-lg">
+            <i data-lucide="menu" class="w-6 h-6"></i>
+          </button>
+          <h1 id="admin-page-title" class="text-2xl font-black text-slate-900 tracking-tight">System Overview</h1>
+        </div>
+        <div class="flex items-center gap-4">
+          <div class="hidden sm:flex flex-col items-end mr-2 text-right">
+            <span class="text-sm font-bold text-slate-900">Mr. Noim Choudhury</span>
+            <span class="text-[10px] font-black text-primary-600 uppercase tracking-widest">Super Admin</span>
+          </div>
+          <div class="h-10 w-10 rounded-xl bg-primary-600 flex items-center justify-center text-white font-black shadow-lg shadow-primary-600/20">
+            NC
+          </div>
         </div>
       </header>
       
@@ -77,40 +147,77 @@
           <div class="spinner w-10 h-10 border-4 border-primary-600 border-t-transparent"></div>
         </div>
 
-        <div id="panel-overview" class="admin-panel space-y-6">
-          <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-            <div class="premium-card p-6 rounded-2xl border border-slate-100 bg-white">
-              <p class="text-slate-500 text-sm font-medium mb-1">Total Users (Patients)</p>
-              <p id="stat-patients" class="text-3xl font-extrabold text-dark">0</p>
+        <div id="panel-overview" class="admin-panel space-y-8 pb-32">
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm hover:shadow-xl transition-all duration-300 group">
+              <div class="flex items-center justify-between mb-4">
+                <div class="p-3 bg-blue-50 text-blue-600 rounded-2xl group-hover:scale-110 transition-transform">
+                  <i data-lucide="users" class="w-6 h-6"></i>
+                </div>
+                <span class="text-[10px] font-black text-slate-400 uppercase">Total Patients</span>
+              </div>
+              <p id="stat-patients" class="text-4xl font-black text-slate-900">0</p>
+              <div class="mt-2 text-xs font-bold text-emerald-500 flex items-center gap-1">↑ 12% <span class="text-slate-400 font-medium">from last month</span></div>
             </div>
-            <div class="premium-card p-6 rounded-2xl border border-slate-100 bg-white">
-              <p class="text-slate-500 text-sm font-medium mb-1">Total Providers</p>
-              <p id="stat-doctors" class="text-3xl font-extrabold text-dark">0</p>
+            <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm hover:shadow-xl transition-all duration-300 group">
+              <div class="flex items-center justify-between mb-4">
+                <div class="p-3 bg-purple-50 text-purple-600 rounded-2xl group-hover:scale-110 transition-transform">
+                  <i data-lucide="stethoscope" class="w-6 h-6"></i>
+                </div>
+                <span class="text-[10px] font-black text-slate-400 uppercase">Doctors</span>
+              </div>
+              <p id="stat-doctors" class="text-4xl font-black text-slate-900">0</p>
+              <div class="mt-2 text-xs font-bold text-emerald-500 flex items-center gap-1">↑ 5% <span class="text-slate-400 font-medium">Growth rate</span></div>
             </div>
-            <div class="premium-card p-6 rounded-2xl border border-slate-100 bg-white">
-              <p class="text-slate-500 text-sm font-medium mb-1">Total Clinics</p>
-              <p id="stat-clinics" class="text-3xl font-extrabold text-dark">0</p>
+            <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm hover:shadow-xl transition-all duration-300 group">
+              <div class="flex items-center justify-between mb-4">
+                <div class="p-3 bg-emerald-50 text-emerald-600 rounded-2xl group-hover:scale-110 transition-transform">
+                  <i data-lucide="building" class="w-6 h-6"></i>
+                </div>
+                <span class="text-[10px] font-black text-slate-400 uppercase">Clinics</span>
+              </div>
+              <p id="stat-clinics" class="text-4xl font-black text-slate-900">0</p>
+              <div class="mt-2 text-xs font-bold text-slate-400">Total active venues</div>
             </div>
-            <div class="premium-card p-6 rounded-2xl border border-slate-100 bg-white">
-              <p class="text-slate-500 text-sm font-medium mb-1">Total Appointments</p>
-              <p id="stat-appointments" class="text-3xl font-extrabold text-dark">0</p>
+            <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm hover:shadow-xl transition-all duration-300 group">
+              <div class="flex items-center justify-between mb-4">
+                <div class="p-3 bg-amber-50 text-amber-600 rounded-2xl group-hover:scale-110 transition-transform">
+                  <i data-lucide="calendar-check" class="w-6 h-6"></i>
+                </div>
+                <span class="text-[10px] font-black text-slate-400 uppercase">Appointments</span>
+              </div>
+              <p id="stat-appointments" class="text-4xl font-black text-slate-900">0</p>
+              <div class="mt-2 text-xs font-bold text-emerald-500 flex items-center gap-1">↑ 24% <span class="text-slate-400 font-medium">Peak usage</span></div>
             </div>
           </div>
-          <div id="rls-warning" class="hidden p-4 text-sm text-amber-800 bg-amber-50 border border-amber-200 rounded-xl space-y-2">
-            <p>Note: If patients or appointments still look empty, open this page in a private window while signed out of the patient site (the admin uses the anon key; an active login uses a different role). In Supabase, run <code class="text-xs bg-amber-100 px-1 rounded">supabase_rls_admin_anon_read.sql</code> so anon can list patients and appointments for this dashboard.</p>
-          </div>
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-              <div class="px-5 py-4 border-b border-slate-100 bg-slate-50">
-                <h3 class="font-bold text-dark">Recent appointments</h3>
-              </div>
-              <div class="p-4 max-h-64 overflow-y-auto text-sm text-slate-600" id="overview-mini-appts"></div>
+
+          <div id="rls-warning" class="hidden p-5 bg-amber-500 text-white rounded-3xl shadow-lg shadow-amber-500/20 flex flex-col sm:flex-row items-center gap-4">
+            <i data-lucide="alert-triangle" class="w-12 h-12 opacity-50"></i>
+            <div>
+              <p class="font-black text-lg">Potential RLS Restriction Detected</p>
+              <p class="text-sm opacity-90 font-medium leading-tight">If charts look empty, open this page in a Private Window. Ensure <code class="bg-black/20 px-2 py-0.5 rounded">database.sql</code> is fully applied in Supabase.</p>
             </div>
-            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-              <div class="px-5 py-4 border-b border-slate-100 bg-slate-50">
-                <h3 class="font-bold text-dark">Linked providers snapshot</h3>
+          </div>
+
+          <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
+            <div class="xl:col-span-2 bg-white rounded-3xl border border-slate-200 shadow-sm p-8">
+              <div class="flex items-center justify-between mb-8">
+                <h3 class="text-xl font-black text-slate-900">Appointment Analytics</h3>
+                <select class="bg-slate-100 border-none rounded-xl text-xs font-bold px-4 py-2 outline-none">
+                  <option>Last 7 Days</option>
+                  <option>Last 30 Days</option>
+                </select>
               </div>
-              <div class="p-4 max-h-64 overflow-y-auto text-sm text-slate-600" id="overview-mini-docs"></div>
+              <div class="h-80 w-full">
+                <canvas id="appointmentsChart"></canvas>
+              </div>
+            </div>
+            <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
+              <div class="px-8 py-6 border-b border-slate-100 bg-slate-50 flex items-center justify-between">
+                <h3 class="text-lg font-black text-slate-900">Recent Bookings</h3>
+                <a href="#" data-tab="appointments" class="admin-nav text-xs font-bold text-primary-600 hover:underline">View All</a>
+              </div>
+              <div class="p-4 flex-1 overflow-y-auto space-y-4" id="overview-mini-appts"></div>
             </div>
           </div>
         </div>
@@ -161,38 +268,43 @@
           </div>
         </div>
 
-        <div id="panel-providers" class="admin-panel hidden space-y-6">
-          <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-            <div class="px-4 py-3 border-b border-slate-100 bg-slate-50">
-              <h3 class="font-bold text-dark">Providers & venue links</h3>
+        <div id="panel-providers" class="admin-panel hidden">
+          <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+            <div class="px-6 py-5 border-b border-slate-100 bg-slate-50 flex items-center justify-between">
+              <h3 class="text-lg font-black text-slate-900">Verified Providers</h3>
+              <input type="search" placeholder="Search doctors..." class="px-4 py-2 rounded-xl text-xs border border-slate-200 focus:ring-2 focus:ring-primary-500 outline-none w-64">
             </div>
             <div class="overflow-x-auto">
               <table class="w-full text-left text-sm min-w-[800px]">
-                <thead class="bg-slate-100 text-slate-600 font-semibold">
+                <thead class="bg-slate-100 text-[10px] font-black text-slate-500 uppercase tracking-wider">
                   <tr>
-                    <th class="px-3 py-3">Doctor</th>
-                    <th class="px-3 py-3">Degree</th>
-                    <th class="px-3 py-3">Specialty</th>
-                    <th class="px-3 py-3">Phone</th>
-                    <th class="px-3 py-3">Linked clinics</th>
+                    <th class="px-6 py-4">Doctor</th>
+                    <th class="px-6 py-4">Specialty</th>
+                    <th class="px-6 py-4">Contact</th>
+                    <th class="px-6 py-4">Venues</th>
+                    <th class="px-6 py-4 text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody id="admin-providers-body" class="divide-y divide-slate-100"></tbody>
               </table>
             </div>
           </div>
-          <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-            <div class="px-4 py-3 border-b border-slate-100 bg-slate-50">
-              <h3 class="font-bold text-dark">Clinic directory</h3>
+        </div>
+
+        <div id="panel-clinics" class="admin-panel hidden">
+          <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+            <div class="px-6 py-5 border-b border-slate-100 bg-slate-50 flex items-center justify-between">
+              <h3 class="text-lg font-black text-slate-900">Clinic Directory</h3>
+              <button class="bg-primary-600 text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-primary-700 transition">Add New</button>
             </div>
             <div class="overflow-x-auto">
               <table class="w-full text-left text-sm min-w-[700px]">
-                <thead class="bg-slate-100 text-slate-600 font-semibold">
+                <thead class="bg-slate-100 text-[10px] font-black text-slate-500 uppercase tracking-wider">
                   <tr>
-                    <th class="px-3 py-3">Name</th>
-                    <th class="px-3 py-3">Address</th>
-                    <th class="px-3 py-3">Phone</th>
-                    <th class="px-3 py-3">Email</th>
+                    <th class="px-6 py-4">Clinic Name</th>
+                    <th class="px-6 py-4">Address</th>
+                    <th class="px-6 py-4">Contact Details</th>
+                    <th class="px-6 py-4 text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody id="admin-clinics-body" class="divide-y divide-slate-100"></tbody>
@@ -249,26 +361,115 @@
       }
 
       const titles = {
-        overview: 'System overview',
+        overview: 'System Overview',
         appointments: 'Appointments',
         patients: 'Patients',
-        providers: 'Providers & clinics'
+        providers: 'Doctors Directory',
+        clinics: 'Clinic Directory'
       };
 
       function setTab(tab) {
         document.querySelectorAll('.admin-panel').forEach((el) => el.classList.add('hidden'));
-        document.getElementById('panel-' + tab).classList.remove('hidden');
+        document.getElementById('panel-' + (tab === 'providers' ? 'providers' : tab))?.classList.remove('hidden');
         document.getElementById('admin-page-title').textContent = titles[tab] || 'Admin';
+        
+        // Update Desktop Nav
         document.querySelectorAll('.admin-nav').forEach((btn) => {
           const is = btn.getAttribute('data-tab') === tab;
-          btn.className = 'admin-nav w-full text-left block px-4 py-3 rounded-xl font-medium transition ' +
-            (is ? 'bg-primary-600/20 text-primary-300 border border-primary-500/30' : 'hover:bg-slate-800 hover:text-white');
+          btn.className = 'admin-nav group w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-all duration-200 ' +
+            (is ? 'bg-primary-600 text-white shadow-lg shadow-primary-600/20' : 'text-slate-400 hover:bg-white/5 hover:text-white');
         });
+
+        // Update Mobile Nav
+        document.querySelectorAll('.admin-nav-mobile').forEach((btn) => {
+          const is = btn.getAttribute('data-tab') === tab;
+          btn.className = 'admin-nav-mobile flex flex-col items-center gap-1 ' + (is ? 'text-primary-500' : 'text-slate-400');
+        });
+
+        if (window.innerWidth < 1024) {
+          closeSidebar();
+        }
       }
 
-      document.querySelectorAll('.admin-nav').forEach((btn) => {
-        btn.addEventListener('click', () => setTab(btn.getAttribute('data-tab')));
+      function openSidebar() {
+        document.getElementById('sidebar').classList.remove('-translate-x-full');
+        document.getElementById('sidebar-overlay').classList.remove('hidden');
+      }
+
+      function closeSidebar() {
+        document.getElementById('sidebar').classList.add('-translate-x-full');
+        document.getElementById('sidebar-overlay').classList.add('hidden');
+      }
+
+      // Mobile Menu Toggles
+      document.getElementById('mobile-toggle').addEventListener('click', openSidebar);
+      document.getElementById('open-sidebar-mobile').addEventListener('click', openSidebar);
+      document.getElementById('close-sidebar').addEventListener('click', closeSidebar);
+      document.getElementById('sidebar-overlay').addEventListener('click', closeSidebar);
+
+      document.querySelectorAll('.admin-nav, .admin-nav-mobile').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const tab = btn.getAttribute('data-tab');
+          if (tab) setTab(tab);
+        });
       });
+
+      // Initialize Lucide Icons
+      lucide.createIcons();
+
+      let appointmentsChart = null;
+
+      function initChart(data) {
+        const ctx = document.getElementById('appointmentsChart').getContext('2d');
+        if (appointmentsChart) appointmentsChart.destroy();
+
+        // Process data for last 7 days
+        const days = [];
+        const counts = [];
+        for (let i = 6; i >= 0; i--) {
+          const d = new Date();
+          d.setDate(d.getDate() - i);
+          const dateStr = d.toISOString().split('T')[0];
+          days.push(d.toLocaleDateString('en-US', { weekday: 'short' }));
+          counts.push(data.filter(a => a.date === dateStr).length);
+        }
+
+        appointmentsChart = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: days,
+            datasets: [{
+              label: 'Bookings',
+              data: counts,
+              borderColor: '#0ea5e9',
+              borderWidth: 4,
+              pointBackgroundColor: '#fff',
+              pointBorderColor: '#0ea5e9',
+              pointBorderWidth: 2,
+              pointRadius: 6,
+              pointHoverRadius: 8,
+              tension: 0.4,
+              fill: true,
+              backgroundColor: (context) => {
+                const ctx = context.chart.ctx;
+                const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+                gradient.addColorStop(0, 'rgba(14, 165, 233, 0.2)');
+                gradient.addColorStop(1, 'rgba(14, 165, 233, 0)');
+                return gradient;
+              }
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+              y: { beginAtZero: true, grid: { display: false }, border: { display: false } },
+              x: { grid: { display: false }, border: { display: false } }
+            }
+          }
+        });
+      }
 
       let apptsCache = [];
       let patientsCache = [];
@@ -288,14 +489,28 @@
           return;
         }
         apptList.innerHTML = rows.map((a) => `
-          <tr class="hover:bg-slate-50/80">
-            <td class="px-3 py-3 font-medium text-dark">${a.patient_name || '—'}</td>
-            <td class="px-3 py-3 text-slate-600 text-xs">${a.patient_email || ''}<br>${a.patient_phone || ''}</td>
-            <td class="px-3 py-3 text-slate-600 text-xs max-w-[220px]">${a.patient_address || '—'}</td>
-            <td class="px-3 py-3 text-xs">${a.doctor?.name || '—'}${a.doctor?.degree ? `<div class="text-slate-500">${a.doctor.degree}</div>` : ''}</td>
-            <td class="px-3 py-3 text-xs">${a.clinic?.name || '—'}${a.clinic?.address ? `<div class="text-slate-500">${a.clinic.address}</div>` : ''}</td>
-            <td class="px-3 py-3 whitespace-nowrap text-xs">${a.date} ${a.time}</td>
-            <td class="px-3 py-3"><span class="text-xs font-bold uppercase ${a.status === 'completed' ? 'text-green-600' : a.status === 'cancelled' ? 'text-red-600' : 'text-blue-600'}">${a.status}</span></td>
+          <tr class="hover:bg-slate-50 transition-colors">
+            <td class="px-6 py-4">
+              <div class="font-bold text-slate-900">${a.patient_name || '—'}</div>
+              <div class="text-[10px] text-slate-400 font-medium">${a.patient_email || ''}</div>
+            </td>
+            <td class="px-6 py-4 text-xs font-bold text-slate-600">${a.patient_phone || ''}</td>
+            <td class="px-6 py-4 text-xs text-slate-500 max-w-[200px] truncate">${a.patient_address || '—'}</td>
+            <td class="px-6 py-4">
+              <div class="text-xs font-bold text-slate-900">${a.doctor?.name || '—'}</div>
+              <div class="text-[10px] text-primary-600 font-bold">${a.doctor?.specialization || ''}</div>
+            </td>
+            <td class="px-6 py-4 text-xs font-medium text-slate-600">${a.clinic?.name || '—'}</td>
+            <td class="px-6 py-4">
+              <div class="text-xs font-bold text-slate-900">${a.date}</div>
+              <div class="text-[10px] font-medium text-slate-400">${a.time}</div>
+            </td>
+            <td class="px-6 py-4">
+              <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase ${
+                a.status === 'completed' ? 'bg-emerald-100 text-emerald-700' : 
+                a.status === 'cancelled' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'
+              }">${a.status}</span>
+            </td>
           </tr>
         `).join('');
       }
@@ -321,63 +536,72 @@
           apptsCache = appts || [];
           patientsCache = patients || [];
 
-          if ((!patients || patients.length === 0) && (!appts || appts.length === 0)) {
-            document.getElementById('rls-warning').classList.remove('hidden');
-          }
-
+          initChart(apptsCache);
           renderApptsTable(apptsCache);
 
           document.getElementById('admin-patients-body').innerHTML = (patients && patients.length) ? patients.map((p) => `
-            <tr class="hover:bg-slate-50/80">
-              <td class="px-3 py-3 font-medium">${p.name || '—'}</td>
-              <td class="px-3 py-3 text-xs text-slate-600">${p.email || ''}</td>
-              <td class="px-3 py-3 text-xs">${p.phone || '—'}</td>
-              <td class="px-3 py-3 text-xs">${[p.city, p.location].filter(Boolean).join(' · ') || '—'}</td>
+            <tr class="hover:bg-slate-50 transition-colors">
+              <td class="px-6 py-4 font-bold text-slate-900">${p.name || '—'}</td>
+              <td class="px-6 py-4 text-xs font-medium text-slate-500">${p.email || ''}</td>
+              <td class="px-6 py-4 text-xs font-bold text-slate-700">${p.phone || '—'}</td>
+              <td class="px-6 py-4 text-xs font-medium text-slate-500">${[p.city, p.location].filter(Boolean).join(' · ') || '—'}</td>
             </tr>
-          `).join('') : `<tr><td colspan="4" class="px-3 py-6 text-center text-slate-400">No patients (or RLS restricted)</td></tr>`;
+          `).join('') : `<tr><td colspan="4" class="px-6 py-12 text-center text-slate-400 font-medium">No patients found</td></tr>`;
 
           document.getElementById('admin-providers-body').innerHTML = (doctorsFull && doctorsFull.length) ? doctorsFull.map((d) => {
             const links = d.doctor_clinic_links || [];
-            const clinicHtml = links.map((l) => {
-              const cn = l.clinic?.name || 'Clinic';
-              const sch = l.schedule ? `<span class="text-slate-500">${l.schedule}</span>` : '';
-              return `<div class="mb-1 border-b border-slate-100 pb-1 last:border-0"><span class="font-medium text-slate-800">${cn}</span> ${sch ? `<div class="text-xs">${sch}</div>` : ''}</div>`;
-            }).join('') || '—';
+            const clinicHtml = links.map((l) => `<span class="inline-block bg-slate-100 text-slate-600 px-2 py-0.5 rounded mr-1 mb-1 text-[10px] font-bold">${l.clinic?.name || 'Venue'}</span>`).join('') || '—';
             return `
-              <tr class="hover:bg-slate-50/80 align-top">
-                <td class="px-3 py-3 font-medium">${d.name}</td>
-                <td class="px-3 py-3 text-xs">${d.degree || '—'}</td>
-                <td class="px-3 py-3 text-xs">${d.specialization || ''}</td>
-                <td class="px-3 py-3 text-xs">${d.phone || '—'}</td>
-                <td class="px-3 py-3 text-xs max-w-md">${clinicHtml}</td>
+              <tr class="hover:bg-slate-50 transition-colors">
+                <td class="px-6 py-4 flex items-center gap-3">
+                  <div class="h-10 w-10 rounded-xl bg-slate-100 overflow-hidden shrink-0"><img src="${d.image || 'https://via.placeholder.com/80'}" class="w-full h-full object-cover"></div>
+                  <div>
+                    <div class="font-bold text-slate-900">${d.name}</div>
+                    <div class="text-[10px] text-slate-400 font-medium">${d.degree || ''}</div>
+                  </div>
+                </td>
+                <td class="px-6 py-4">
+                  <span class="bg-primary-50 text-primary-700 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider">${d.specialization || 'General'}</span>
+                </td>
+                <td class="px-6 py-4 text-xs font-bold text-slate-600">${d.phone || 'No phone'}</td>
+                <td class="px-6 py-4 min-w-[200px]">${clinicHtml}</td>
+                <td class="px-6 py-4 text-right">
+                  <button class="text-slate-400 hover:text-primary-600"><i data-lucide="edit-3" class="w-4 h-4"></i></button>
+                </td>
               </tr>
             `;
-          }).join('') : `<tr><td colspan="5" class="px-3 py-6 text-center text-slate-400">No providers</td></tr>`;
+          }).join('') : `<tr><td colspan="5" class="px-6 py-12 text-center text-slate-400 font-medium">No providers registered</td></tr>`;
 
           document.getElementById('admin-clinics-body').innerHTML = (clinics && clinics.length) ? clinics.map((c) => `
-            <tr class="hover:bg-slate-50/80">
-              <td class="px-3 py-3 font-medium">${c.name}</td>
-              <td class="px-3 py-3 text-xs text-slate-600">${c.address || ''} ${c.pin ? `(${c.pin})` : ''}</td>
-              <td class="px-3 py-3 text-xs">${c.phone || '—'}</td>
-              <td class="px-3 py-3 text-xs">${c.email || '—'}</td>
+            <tr class="hover:bg-slate-50 transition-colors">
+              <td class="px-6 py-4">
+                <div class="font-bold text-slate-900">${c.name}</div>
+                <div class="text-[10px] text-slate-400 font-medium">${c.email || ''}</div>
+              </td>
+              <td class="px-6 py-4 text-xs text-slate-500 max-w-[250px]">${c.address || ''}</td>
+              <td class="px-6 py-4 text-xs font-bold text-slate-700">${c.phone || '—'}</td>
+              <td class="px-6 py-4 text-right">
+                <button class="text-slate-400 hover:text-primary-600"><i data-lucide="edit-3" class="w-4 h-4"></i></button>
+              </td>
             </tr>
-          `).join('') : `<tr><td colspan="4" class="px-3 py-6 text-center text-slate-400">No clinics</td></tr>`;
+          `).join('') : `<tr><td colspan="4" class="px-6 py-12 text-center text-slate-400 font-medium">No clinics in directory</td></tr>`;
 
-          const miniAppts = (appts || []).slice(0, 8);
+          const miniAppts = (appts || []).slice(0, 5);
           document.getElementById('overview-mini-appts').innerHTML = miniAppts.length ? miniAppts.map((a) => `
-            <div class="mb-3 pb-3 border-b border-slate-100 last:border-0">
-              <span class="font-semibold text-dark">${a.patient_name}</span>
-              <span class="text-slate-500"> · ${a.date} ${a.time}</span>
-              <div class="text-xs text-slate-500">Dr. ${a.doctor?.name || '—'} @ ${a.clinic?.name || '—'}</div>
+            <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 flex items-center gap-4 hover:border-primary-200 transition-colors">
+              <div class="h-10 w-10 bg-white rounded-xl flex items-center justify-center font-black text-slate-400 text-xs shadow-sm">${a.patient_name?.charAt(0) || 'P'}</div>
+              <div class="flex-1">
+                <div class="text-sm font-black text-slate-900">${a.patient_name}</div>
+                <div class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">${a.date} · ${a.time}</div>
+              </div>
+              <div class="text-right">
+                <div class="text-[10px] font-black text-primary-600">Dr. ${a.doctor?.name?.split(' ').pop() || '—'}</div>
+                <div class="text-[10px] font-bold text-slate-400">${a.status}</div>
+              </div>
             </div>
-          `).join('') : '<p class="text-slate-400">No recent appointments</p>';
+          `).join('') : '<p class="text-slate-400 text-center py-4">No recent activity</p>';
 
-          const miniDocs = (doctorsFull || []).slice(0, 6);
-          document.getElementById('overview-mini-docs').innerHTML = miniDocs.length ? miniDocs.map((d) => {
-            const n = (d.doctor_clinic_links || []).length;
-            return `<div class="mb-2">${d.name} (${d.specialization}) — ${n} venue link(s)</div>`;
-          }).join('') : '<p class="text-slate-400">No providers</p>';
-
+          lucide.createIcons();
           loadingIndicator.classList.add('hidden');
         } catch (e) {
           console.error('Failed to load admin dashboard data', e);

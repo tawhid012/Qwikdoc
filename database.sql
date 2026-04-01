@@ -108,6 +108,13 @@ BEGIN
     IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='appointments' AND column_name='patient_address') THEN
         ALTER TABLE public.appointments ADD COLUMN patient_address TEXT;
     END IF;
+    -- Users table columns (Critical fix for Admin Dashboard)
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='users' AND column_name='city') THEN
+        ALTER TABLE public.users ADD COLUMN city TEXT;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='users' AND column_name='location') THEN
+        ALTER TABLE public.users ADD COLUMN location TEXT;
+    END IF;
 END $$;
 
 -- Enable RLS on all tables
@@ -130,6 +137,9 @@ BEGIN
     END IF;
     IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename='users' AND policyname='Anon can list patients for admin dashboard') THEN
         CREATE POLICY "Anon can list patients for admin dashboard" ON public.users FOR SELECT TO anon USING (role = 'patient');
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename='users' AND policyname='Authenticated can list patients for admin dashboard') THEN
+        CREATE POLICY "Authenticated can list patients for admin dashboard" ON public.users FOR SELECT TO authenticated USING (role = 'patient');
     END IF;
 
     -- Doctors Policies
@@ -173,6 +183,9 @@ BEGIN
     END IF;
     IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename='appointments' AND policyname='Anon can list appointments for admin dashboard') THEN
         CREATE POLICY "Anon can list appointments for admin dashboard" ON public.appointments FOR SELECT TO anon USING (true);
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename='appointments' AND policyname='Authenticated can list appointments for admin dashboard') THEN
+        CREATE POLICY "Authenticated can list appointments for admin dashboard" ON public.appointments FOR SELECT TO authenticated USING (true);
     END IF;
     IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename='appointments' AND policyname='Patients can insert appointments') THEN
         CREATE POLICY "Patients can insert appointments" ON public.appointments FOR INSERT WITH CHECK (auth.uid() = patient_id);

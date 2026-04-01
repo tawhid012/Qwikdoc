@@ -190,7 +190,7 @@ function updateAuthUI() {
 
     if (mobileAuthContainer) {
       mobileAuthContainer.innerHTML = `
-        <a href="login.html" class="block w-full px-4 py-3 mt-2 bg-primary-600 text-white text-center rounded-xl font-bold hover:bg-primary-700 transition-colors shadow-md shadow-primary-500/30">Book Appointment</a>
+        <a href="login.html" class="block w-full max-w-full px-4 py-3 mt-2 bg-primary-600 text-white text-center rounded-xl font-bold hover:bg-primary-700 transition-colors shadow-md shadow-primary-500/30 box-border border-2 border-primary-600">Book Appointment</a>
       `;
     }
   }

@@ -16,6 +16,17 @@ BEGIN
     TO anon
     USING (role = 'patient');
   END IF;
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies
+    WHERE schemaname = 'public' AND tablename = 'users'
+    AND policyname = 'Authenticated can list patients for admin dashboard'
+  ) THEN
+    CREATE POLICY "Authenticated can list patients for admin dashboard"
+    ON public.users
+    FOR SELECT
+    TO authenticated
+    USING (role = 'patient');
+  END IF;
 END $$;
 
 -- All appointments for admin (anon requests only)
@@ -30,6 +41,17 @@ BEGIN
     ON public.appointments
     FOR SELECT
     TO anon
+    USING (true);
+  END IF;
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies
+    WHERE schemaname = 'public' AND tablename = 'appointments'
+    AND policyname = 'Authenticated can list appointments for admin dashboard'
+  ) THEN
+    CREATE POLICY "Authenticated can list appointments for admin dashboard"
+    ON public.appointments
+    FOR SELECT
+    TO authenticated
     USING (true);
   END IF;
 END $$;
